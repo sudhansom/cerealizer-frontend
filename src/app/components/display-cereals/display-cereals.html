@@ -13,51 +13,38 @@
         <table class="table table-hover table-striped mb-0">
           <thead class="table-light">
             <tr>
-              <th>S.N</th>
-              <th>Name</th>
-              <th>Manufacturer</th>
-              <th>Type</th>
-              <th>Calories</th>
-              <th>Protein</th>
-              <th>Sodium</th>
-              <th>Fiber</th>
-              <th>Fat</th>
-              <th>Sugar</th>
-              <th>Potass</th>
-              <th>Vitamins</th>
-              <th>Self</th>
-              <th>Weight</th>
-              <th>Cups</th>
-              <th>Rating</th>
-              <th>Image</th>
+              @for (title of titles; track title) {
+                <th>{{ title }}</th>
+              }
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let user of users">
-              <td>{{ user.id }}</td>
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.role }}</td>
-              <td>
-                <span class="badge">
-                  {{ user.status }}
-                </span>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-primary me-1">Edit</button>
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </td>
-            </tr>
-            <tr *ngIf="users.length === 0">
-              <td colspan="6" class="text-center py-4">No users found</td>
-            </tr>
+            @for (cereal of cereals; track cereal.id) {
+              <tr>
+                <td>{{ $index }}</td>
+                @for (titleValue of titleValues; track titleValue) {
+                  <td>
+                    <input
+                      class="form-control w-full border-0 bg-transparent p-0"
+                      [class.bg-light]="!isFocused"
+                      (focus)="isFocused = true"
+                      (blur)="isFocused = false"
+                      [class.w-auto]="titleValue.toString() === 'name'"
+                      type="text"
+                      [value]="cereal[titleValue]"
+                      (change)="updateCereal($event, cereal.id, titleValue.toString())"
+                    />
+                  </td>
+                }
+
+                <!-- <td>
+                  <button class="btn btn-sm btn-primary me-1">Edit</button>
+                  <button class="btn btn-sm btn-danger">Delete</button>
+                </td> -->
+              </tr>
+            }
           </tbody>
         </table>
-      </div>
-    </div>
-    <div class="card-footer bg-white py-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>Showing {{ '' }} entries</div>
       </div>
     </div>
   </div>

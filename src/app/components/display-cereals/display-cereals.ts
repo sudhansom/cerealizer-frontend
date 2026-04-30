@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { ICereal } from '../../models/cereal-types';
+import { CerealService } from '../../services/cereal-service';
 
 interface User {
   id: number;
@@ -15,11 +17,49 @@ interface User {
   styleUrl: './display-cereals.css',
 })
 export class DisplayCereals {
-  users: User[] = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Manager', status: 'Active' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive' },
-    { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'Editor', status: 'Pending' },
-    { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', role: 'User', status: 'Active' },
+  @Input() cereals!: ICereal[];
+  cerealService = inject(CerealService);
+  isFocused = false;
+  titles = [
+    'S.N',
+    'Name',
+    'Manufacturer',
+    'Type',
+    'Calories',
+    'Protein',
+    'Sodium',
+    'Fat',
+    'Sugar',
+    'Potass',
+    'Vitamins',
+    'Self',
+    'Weight',
+    'Cups',
+    'Rating',
+    'Image',
   ];
+  titleValues: (keyof ICereal)[] = [
+    'name',
+    'mfr',
+    'type',
+    'calories',
+    'protein',
+    'sodium',
+    'fat',
+    'sugar',
+    'potass',
+    'vitamins',
+    'self',
+    'weight',
+    'cups',
+    'rating',
+    'image',
+  ];
+
+  updateCereal(event: any, id: string, titleValue: string) {
+    console.log(event.target.value, id, titleValue);
+    this.cerealService.updateCereal(id, titleValue, event.target.value).subscribe((cereal) => {
+      console.log(cereal);
+    });
+  }
 }
