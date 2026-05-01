@@ -31,6 +31,14 @@ export class App implements OnInit {
   cerealService = inject(CerealService);
 
   ngOnInit(): void {
+    this.loadData();
+    this.cerealService.updateAvailable.subscribe((data) => {
+      console.log('data loaded', data);
+      this.loadData();
+    });
+  }
+
+  loadData() {
     this.cerealService.getCereals().subscribe((cereals) => {
       this.cereals.set(cereals);
     });
