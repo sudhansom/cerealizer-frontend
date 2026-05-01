@@ -18,4 +18,8 @@ export class CerealService {
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {
     return this.http.put<ICereal>(`${BASE_URL}/cereal/${id}`, { [key]: value });
   }
+
+  addCereal(cereal: ICereal) {
+    return this.http.post<ICereal>(`${BASE_URL}/cereal`, cereal);
+  }
 }

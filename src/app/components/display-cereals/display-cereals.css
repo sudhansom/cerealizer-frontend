@@ -1,0 +1,14 @@
+:host {
+    .form {
+        display: flex;
+        gap: 12px;
+        justify-content: start;
+        align-items: center;
+    }
+    input {
+        width: 36px;
+    }
+    .field-name {
+        width: 200px;
+    }
+}

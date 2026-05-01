@@ -63,20 +63,22 @@ export class DisplayCereals implements OnInit {
 
   ngOnInit(): void {
     this.cerealForm = new FormGroup({
-      name: new FormControl('dfdsfds', Validators.required),
+      name: new FormControl('', Validators.required),
       mfr: new FormControl('', Validators.required),
       type: new FormControl('', Validators.required),
-      calories: new FormControl(0, Validators.required),
-      protein: new FormControl(0, Validators.required),
-      sodium: new FormControl(0, Validators.required),
-      fiber: new FormControl(0, Validators.required),
-      fat: new FormControl(0, Validators.required),
-      potass: new FormControl(0, Validators.required),
-      vitamins: new FormControl(0, Validators.required),
-      self: new FormControl(0, Validators.required),
-      cups: new FormControl(0, Validators.required),
-      rating: new FormControl(0, Validators.required),
-      image: new FormControl(0, Validators.required),
+      calories: new FormControl(null, Validators.required),
+      protein: new FormControl(null, Validators.required),
+      sodium: new FormControl(null, Validators.required),
+      fiber: new FormControl(null, Validators.required),
+      sugar: new FormControl(null, Validators.required),
+      fat: new FormControl(null, Validators.required),
+      potass: new FormControl(null, Validators.required),
+      vitamins: new FormControl(null, Validators.required),
+      self: new FormControl(null, Validators.required),
+      weight: new FormControl(null, Validators.required),
+      cups: new FormControl(null, Validators.required),
+      rating: new FormControl(null, Validators.required),
+      image: new FormControl(null, Validators.required),
     });
   }
 
@@ -89,7 +91,9 @@ export class DisplayCereals implements OnInit {
 
   addCereal() {
     if (this.addNewCereal) {
-      alert('Saved');
+      this.cerealService.addCereal(this.cerealForm.value).subscribe((cereal) => {
+        console.log(cereal);
+      });
     }
     this.addNewCereal = !this.addNewCereal;
   }
