@@ -11,4 +11,11 @@
     .field-name {
         width: 200px;
     }
+    .btn-custom-border {
+        border-color: #eae9eb !important;  /* Purple border */
+        color: rgb(101, 99, 99);
+    }
+    .btn-custom-border:hover {
+        color: rgb(249, 249, 249);
+    }
 }

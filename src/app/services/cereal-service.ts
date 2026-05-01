@@ -22,4 +22,8 @@ export class CerealService {
   addCereal(cereal: ICereal) {
     return this.http.post<ICereal>(`${BASE_URL}/cereal`, cereal);
   }
+
+  deleteCereal(id: string) {
+    return this.http.delete<ICereal>(`${BASE_URL}/cereal/${id}`);
+  }
 }

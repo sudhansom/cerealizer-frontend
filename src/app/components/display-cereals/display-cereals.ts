@@ -97,4 +97,9 @@ export class DisplayCereals implements OnInit {
     }
     this.addNewCereal = !this.addNewCereal;
   }
+  deleteCereal(id: string) {
+    this.cerealService.deleteCereal(id).subscribe((cereal) => {
+      console.log('deleted', cereal);
+    });
+  }
 }

@@ -41,7 +41,15 @@
           <tbody>
             @for (cereal of cereals; track cereal.id) {
               <tr>
-                <td>{{ $index }}</td>
+                <td>
+                  <!-- <span class="hide-on-hover">{{ $index }} </span> -->
+                  <button
+                    class="btn btn-sm btn-outline-danger btn-custom-border"
+                    (click)="deleteCereal(cereal.id)"
+                  >
+                    {{ $index }}
+                  </button>
+                </td>
                 @for (titleValue of titleValues; track titleValue) {
                   <td>
                     <input
