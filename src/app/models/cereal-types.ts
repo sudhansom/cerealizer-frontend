@@ -23,3 +23,9 @@ export interface ICereal {
   rating: number;
   image?: string;
 }
+
+export interface ISearchInputs {
+  item: string;
+  condition: string;
+  value: string | number;
+}

@@ -18,4 +18,15 @@
     .btn-custom-border:hover {
         color: rgb(249, 249, 249);
     }
+    .search {
+        width: 300px;
+    }
+    .search-input {
+        border: 1px solid rgb(197, 194, 194);
+        border-radius: 6px;
+        width: 48px;
+    }
+    .form-select {
+        width: 45%;
+    }
 }

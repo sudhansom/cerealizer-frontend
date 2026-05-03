@@ -9,6 +9,7 @@ import { Navbar } from './components/navbar/navbar';
 import { DisplayCereals } from './components/display-cereals/display-cereals';
 import { ICereal } from './models/cereal-types';
 import { CerealService } from './services/cereal-service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -39,8 +40,22 @@ export class App implements OnInit {
   }
 
   loadData() {
-    this.cerealService.getCereals().subscribe((cereals) => {
-      this.cereals.set(cereals);
-    });
+    this.cerealService.searchInputs
+      .pipe(
+        switchMap((values) => {
+          if (values.item && values.condition && values.value) {
+            return this.cerealService.getFilteredCereals(
+              values.item,
+              values.value,
+              values.condition,
+            );
+          } else {
+            return this.cerealService.getCereals();
+          }
+        }),
+      )
+      .subscribe((cereals) => {
+        this.cereals.set(cereals);
+      });
   }
 }

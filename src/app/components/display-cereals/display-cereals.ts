@@ -1,7 +1,15 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { ICereal } from '../../models/cereal-types';
 import { CerealService } from '../../services/cereal-service';
-import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+  FormsModule,
+} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
 
 interface User {
   id: number;
@@ -13,12 +21,15 @@ interface User {
 
 @Component({
   selector: 'app-display-cereals',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule],
   templateUrl: './display-cereals.html',
   styleUrl: './display-cereals.css',
 })
 export class DisplayCereals implements OnInit {
   @Input() cereals!: ICereal[];
+  item = 'Mfr';
+  condition = 'equalTo';
+  value = this.checkCondition() ? '' : 0;
   cerealForm!: FormGroup;
   cerealService = inject(CerealService);
   addNewCereal = false;
@@ -26,7 +37,7 @@ export class DisplayCereals implements OnInit {
   titles = [
     'S.N',
     'Name',
-    'Manufacturer',
+    'Mfr',
     'Type',
     'Calories',
     'Protein',
@@ -101,5 +112,18 @@ export class DisplayCereals implements OnInit {
     this.cerealService.deleteCereal(id).subscribe((cereal) => {
       console.log('deleted', cereal);
     });
+  }
+
+  onChangeItem() {
+    console.log('updated....');
+    this.cerealService.updateSearchInputs({
+      item: this.item,
+      condition: this.condition,
+      value: this.value,
+    });
+  }
+
+  checkCondition() {
+    return ['Mfr', 'Name', 'Type'].includes(this.item);
   }
 }

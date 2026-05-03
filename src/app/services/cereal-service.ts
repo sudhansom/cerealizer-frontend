@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, tap, pipe } from 'rxjs';
-import { ICereal } from '../models/cereal-types';
+import { ICereal, ISearchInputs } from '../models/cereal-types';
 
 const BASE_URL = 'http://localhost:4300/api';
 
@@ -13,6 +13,16 @@ export class CerealService {
 
   updateAvailable = new BehaviorSubject<boolean>(false);
 
+  searchInputs = new BehaviorSubject<ISearchInputs>({
+    item: '',
+    condition: '',
+    value: '',
+  });
+
+  updateSearchInputs(inputs: ISearchInputs) {
+    this.searchInputs.next(inputs);
+  }
+
   refreshUpdate() {
     this.updateAvailable.next(true);
 
@@ -23,6 +33,17 @@ export class CerealService {
 
   getCereals(): Observable<ICereal[]> {
     return this.http.get<ICereal[]>(`${BASE_URL}/cereal`);
+  }
+
+  getFilteredCereals(item: string, value: number | string, condition: string) {
+    return this.http.get<ICereal[]>(
+      `${BASE_URL}/cereal/filter/?item=${item}&value=${value}&condition=${condition}`,
+    );
+    // .pipe(
+    //   tap(() => {
+    //     this.refreshUpdate();
+    //   }),
+    // );
   }
 
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {

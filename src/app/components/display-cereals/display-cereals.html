@@ -4,6 +4,43 @@
       <div>
         <h5 class="mb-0 fw-bold">Cereal List</h5>
       </div>
+      <div>
+        <h5 class="text-center">Search</h5>
+        <div class="search d-flex justify-content-between gap-1">
+          <select class="form-select" [(ngModel)]="item" (ngModelChange)="onChangeItem()">
+            <option value="">Item</option>
+            @for (title of titles; track title.slice(0, 3)) {
+              @if (!['S.N', 'Image'].includes(title)) {
+                <option [value]="title">{{ title }}</option>
+              }
+            }
+          </select>
+          <select class="form-select p-1" [(ngModel)]="condition">
+            <option value="">Condition</option>
+            @if (!checkCondition()) {
+              <option class="fs-1 fw-bold" value="greaterThan">></option>
+              <option class="fs-1 fw-bold" value="lessThan"><</option>
+              <option class="fs-1 fw-bold" value="equalTo">=</option>
+              <option class="fs-1 fw-bold" value="greaterThanOrEqualto">>=</option>
+              <option class="fs-1 fw-bold" value="lessThanOrEqualto"><=</option>
+              <option class="fs-1 fw-bold" value="notEqualTo">!=</option>
+            }
+            @if (checkCondition()) {
+              <option class="fs-1 fw-bold" value="equalTo">=</option>
+
+              <option class="fs-1 fw-bold" value="notEqualTo">!=</option>
+            }
+          </select>
+          <input
+            class="w-25 search-input p-1"
+            [type]="checkCondition() ? 'text' : 'number'"
+            placeholder="Value"
+            [title]="'Enter Text Value'"
+            (change)="onChangeItem()"
+            [(ngModel)]="value"
+          />
+        </div>
+      </div>
       <div class="btn-group">
         <button class="btn btn-sm btn-outline-primary" (click)="addCereal()">
           {{ addNewCereal ? 'Save' : 'Add Cereal' }}
@@ -33,7 +70,7 @@
         <table class="table table-hover table-striped mb-0">
           <thead class="table-light">
             <tr>
-              @for (title of titles; track title) {
+              @for (title of titles; track title.slice(2, 6)) {
                 <th>{{ title }}</th>
               }
             </tr>
