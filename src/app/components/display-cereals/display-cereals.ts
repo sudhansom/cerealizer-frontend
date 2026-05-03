@@ -27,8 +27,8 @@ interface User {
 })
 export class DisplayCereals implements OnInit {
   @Input() cereals!: ICereal[];
-  item = 'Mfr';
-  condition = 'equalTo';
+  item = 'Calories';
+  condition = 'lessThan';
   value = this.checkCondition() ? '' : 0;
   cerealForm!: FormGroup;
   cerealService = inject(CerealService);
