@@ -10,6 +10,7 @@ import { DisplayCereals } from './components/display-cereals/display-cereals';
 import { ICereal } from './models/cereal-types';
 import { CerealService } from './services/cereal-service';
 import { switchMap } from 'rxjs';
+import { Login } from './login/login';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { switchMap } from 'rxjs';
     MatToolbarModule,
     Navbar,
     DisplayCereals,
+    Login,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',

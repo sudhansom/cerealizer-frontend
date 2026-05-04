@@ -75,4 +75,14 @@ export class CerealService {
       }),
     );
   }
+
+  loginUser(user: {
+    name: string;
+    password: string;
+  }): Observable<{ userId: string; token: string }> {
+    return this.http.post<{ userId: string; token: string }>(
+      'http://localhost:4300/api/users/login',
+      user,
+    );
+  }
 }
