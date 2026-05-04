@@ -20,6 +20,7 @@ export class Login {
         if (res.token) {
           this.loggedIn.set(true);
           localStorage.setItem('token', res.token);
+          this.cerealService.updateLogin(true);
         }
       });
   }

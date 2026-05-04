@@ -15,8 +15,14 @@
         </li>
 
         <li class="nav-item">
-          <button (click)="logoutUser()" mat-button class="text-white">
-            <mat-icon class="me-2">logout</mat-icon>
+          <button mat-button class="text-white">
+            @if (isLoggedIn()) {
+              <mat-icon (click)="logoutUser()" class="me-2">logout</mat-icon>
+            } @else {
+              <a href="" class="text-white">
+                <mat-icon class="me-2">login</mat-icon>
+              </a>
+            }
           </button>
         </li>
       </ul>

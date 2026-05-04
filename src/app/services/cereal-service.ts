@@ -13,6 +13,8 @@ export class CerealService {
 
   updateAvailable = new BehaviorSubject<boolean>(false);
 
+  isLoggedIn = new BehaviorSubject<boolean>(false);
+
   searchInputs = new BehaviorSubject<ISearchInputs>({
     item: '',
     condition: '',
@@ -84,5 +86,12 @@ export class CerealService {
       'http://localhost:4300/api/users/login',
       user,
     );
+  }
+
+  updateLogin(val: boolean) {
+    this.isLoggedIn.next(val);
+    if (!val) {
+      localStorage.removeItem('token');
+    }
   }
 }
