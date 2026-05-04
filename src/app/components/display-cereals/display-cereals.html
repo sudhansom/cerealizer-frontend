@@ -81,7 +81,9 @@
                 <td>
                   <!-- <span class="hide-on-hover">{{ $index }} </span> -->
                   <button
-                    class="btn btn-sm btn-outline-danger btn-custom-border"
+                    class="btn btn-sm"
+                    [class.btn-outline-danger]="isLoggedIn()"
+                    [class.btn-custom-border]="isLoggedIn()"
                     (click)="deleteCereal(cereal.id)"
                   >
                     {{ $index }}

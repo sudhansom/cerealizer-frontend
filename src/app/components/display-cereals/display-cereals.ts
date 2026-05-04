@@ -34,6 +34,7 @@ export class DisplayCereals implements OnInit {
   cerealService = inject(CerealService);
   addNewCereal = false;
   isFocused = false;
+  isLoggedIn = signal(false);
   titles = [
     'S.N',
     'Name',
@@ -73,6 +74,9 @@ export class DisplayCereals implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.cerealService.isLoggedIn.subscribe((val) => {
+      this.isLoggedIn.set(val);
+    });
     this.cerealForm = new FormGroup({
       name: new FormControl('', Validators.required),
       mfr: new FormControl('', Validators.required),
@@ -109,9 +113,11 @@ export class DisplayCereals implements OnInit {
     this.addNewCereal = !this.addNewCereal;
   }
   deleteCereal(id: string) {
-    this.cerealService.deleteCereal(id).subscribe((cereal) => {
-      console.log('deleted', cereal);
-    });
+    if (this.isLoggedIn()) {
+      this.cerealService.deleteCereal(id).subscribe((cereal) => {
+        console.log('deleted', cereal);
+      });
+    }
   }
 
   onChangeItem() {
