@@ -36,4 +36,20 @@
     .pick-image:hover {
         color: rgb(12, 4, 116);
     }
+
+    .display-cereal {
+        position: relative;
+    }
+
+    .image-container-shadow {
+        position: absolute;
+        top:0;
+        left:0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 300px;
+        overflow: hidden;
+    }
 }

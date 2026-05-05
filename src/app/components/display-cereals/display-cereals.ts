@@ -36,6 +36,7 @@ export class DisplayCereals implements OnInit {
   isFocused = false;
   isLoggedIn = signal(false);
   imageSelected = signal(false);
+  imagePreview = '';
 
   titles = [
     'S.N',
@@ -135,7 +136,17 @@ export class DisplayCereals implements OnInit {
     return ['Mfr', 'Name', 'Type'].includes(this.item);
   }
 
-  onImageSelection() {
+  onImageSelection(event: Event) {
     this.imageSelected.set(true);
+    const file = (event.target as HTMLInputElement)?.files?.[0];
+    this.cerealForm.patchValue({
+      image: file,
+    });
+    this.cerealForm.get('image')?.updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file as File);
   }
 }

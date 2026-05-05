@@ -65,10 +65,10 @@
                 />
               </div>
             } @else {
-              <span class="pick-image" (click)="image.click()">{{
+              <span class="pick-image" [title]="imagePreview" (click)="image.click()">{{
                 imageSelected() === true ? 'Change' : '+ Img'
               }}</span>
-              <input type="file" #image hidden (change)="onImageSelection()" />
+              <input type="file" #image hidden (change)="onImageSelection($event)" />
             }
           }
         </form>
@@ -124,6 +124,12 @@
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="image-container-shadow">
+  <div class="image-container">
+    <img [src]="imagePreview" alt="" />
   </div>
 </div>
 
