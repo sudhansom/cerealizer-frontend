@@ -29,6 +29,7 @@
         border-radius: 8px;
         color:#000;
         z-index:1;
+        background-color: rgb(225, 226, 226);
     }  
     .heading {
         text-align: center;
@@ -38,6 +39,7 @@
         color: #fff;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
+        padding: 6px;
     }
     .modal-body {
         display: flex;
@@ -57,6 +59,7 @@
         width: 100%;
         padding: 3px;
         font-weight: normal;
+        border-color: #fdfdfd;;
     }
     .user {
         width: 100%;
@@ -75,6 +78,7 @@
         color: #fff;
         padding: 3px 18px;
         border-radius: 6px;
+        margin-bottom: 12px;
     }
     button:hover {
         background-color: #1e5994;
