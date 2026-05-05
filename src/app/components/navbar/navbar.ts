@@ -20,13 +20,13 @@ export class Navbar implements OnInit {
   ngOnInit(): void {
     this.cerealService.isLoggedIn.subscribe((val) => {
       this.isLoggedIn.set(val);
-      this.userName.set(localStorage.getItem('name') || '');
+      this.userName.set(this.cerealService.nameToken.name); // check this please
     });
   }
   logoutUser() {
     this.cerealService.updateLogin(false);
     this.userName.set('');
-    localStorage.removeItem('name');
+    this.cerealService.setNameNToken('', '');
   }
 
   loginUser() {}

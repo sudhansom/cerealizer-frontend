@@ -19,8 +19,7 @@ export class Login {
       .subscribe((res) => {
         if (res.token) {
           this.loggedIn.set(true);
-          localStorage.setItem('token', res.token);
-          localStorage.setItem('name', this.username);
+          this.cerealService.setNameNToken(this.username, res.token);
           this.cerealService.updateLogin(true);
         }
       });
