@@ -84,4 +84,11 @@
         background-color: #1e5994;
         cursor: pointer;
     }
+    .small-text {
+        display: block;
+        margin-top: -4px;
+        margin-bottom: 4px;
+        font-size: 12px;
+        padding: 0 24px;
+    }
 }

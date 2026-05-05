@@ -14,6 +14,14 @@ export class CerealService {
   updateAvailable = new BehaviorSubject<boolean>(false);
 
   isLoggedIn = new BehaviorSubject<boolean>(false);
+  nameToken = {
+    name: '',
+    token: '',
+  };
+
+  setNameNToken(name: string, token: string) {
+    ((this.nameToken.name = name), (this.nameToken.token = token));
+  }
 
   searchInputs = new BehaviorSubject<ISearchInputs>({
     item: '',
@@ -91,7 +99,7 @@ export class CerealService {
   updateLogin(val: boolean) {
     this.isLoggedIn.next(val);
     if (!val) {
-      localStorage.removeItem('token');
+      this.nameToken.token = '';
     }
   }
 }

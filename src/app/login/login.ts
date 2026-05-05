@@ -13,16 +13,25 @@ export class Login {
   username: string = '';
   password: string = '';
   cerealService = inject(CerealService);
+  errorMessage = signal(false);
+
   submitForm() {
-    this.cerealService
-      .loginUser({ name: this.username, password: this.password })
-      .subscribe((res) => {
-        if (res.token) {
-          this.loggedIn.set(true);
-          localStorage.setItem('token', res.token);
-          localStorage.setItem('name', this.username);
-          this.cerealService.updateLogin(true);
-        }
-      });
+    this.errorMessage.set(false);
+    this.cerealService.loginUser({ name: this.username, password: this.password }).subscribe({
+      next: (res) => {
+        this.loggedIn.set(true);
+        this.cerealService.setNameNToken(this.username, res.token);
+        this.cerealService.updateLogin(true);
+      },
+      error: (err) => {
+        this.errorMessage.set(true);
+        this.loggedIn.set(false);
+        this.cerealService.updateLogin(false);
+      },
+    });
+  }
+
+  setErrorMessageFalse() {
+    this.errorMessage.set(false);
   }
 }

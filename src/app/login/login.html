@@ -7,13 +7,21 @@
       <div class="modal-body">
         <label
           >User:
-          <input class="user" type="text" [(ngModel)]="username" />
+          <input class="user" type="text" [(ngModel)]="username" (focus)="setErrorMessageFalse()" />
         </label>
         <label
           >Password:
-          <input class="password" type="password" [(ngModel)]="password" />
+          <input
+            class="password"
+            type="password"
+            [(ngModel)]="password"
+            (focus)="setErrorMessageFalse()"
+          />
         </label>
       </div>
+      @if (errorMessage()) {
+        <span class="text-danger small-text">Wrong Credentials... please try again.</span>
+      }
       <div class="footer">
         <button (click)="submitForm()">Login</button>
       </div>
