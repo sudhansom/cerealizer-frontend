@@ -29,4 +29,11 @@
     .form-select {
         width: 45%;
     }
+    .pick-image {
+        color: rgb(5, 5, 244);
+        cursor: pointer;
+    }
+    .pick-image:hover {
+        color: rgb(12, 4, 116);
+    }
 }

@@ -35,6 +35,8 @@ export class DisplayCereals implements OnInit {
   addNewCereal = false;
   isFocused = false;
   isLoggedIn = signal(false);
+  imageSelected = signal(false);
+
   titles = [
     'S.N',
     'Name',
@@ -131,5 +133,9 @@ export class DisplayCereals implements OnInit {
 
   checkCondition() {
     return ['Mfr', 'Name', 'Type'].includes(this.item);
+  }
+
+  onImageSelection() {
+    this.imageSelected.set(true);
   }
 }

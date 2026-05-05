@@ -52,15 +52,24 @@
         <form class="form" [formGroup]="cerealForm">
           <div class="col p-1">{{ cereals.length }}</div>
           @for (titleValue of titleValues; track titleValue) {
-            <div class="col">
-              <input
-                class="form-control w-full p-1"
-                [type]="['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'"
-                [formControlName]="titleValue"
-                [class.field-name]="titleValue.toString() === 'name'"
-                [placeholder]="titleValue.toString()"
-              />
-            </div>
+            @if (titleValue !== 'image') {
+              <div class="col">
+                <input
+                  class="form-control w-full p-1"
+                  [type]="
+                    ['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'
+                  "
+                  [formControlName]="titleValue"
+                  [class.field-name]="titleValue.toString() === 'name'"
+                  [placeholder]="titleValue.toString()"
+                />
+              </div>
+            } @else {
+              <span class="pick-image" (click)="image.click()">{{
+                imageSelected() === true ? 'Change' : '+ Img'
+              }}</span>
+              <input type="file" #image hidden (change)="onImageSelection()" />
+            }
           }
         </form>
       </div>

@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.css',
 })
 export class Login {
-  loggedIn = signal(false);
+  loggedIn = signal(true);
   username: string = '';
   password: string = '';
   cerealService = inject(CerealService);
