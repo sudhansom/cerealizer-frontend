@@ -15,14 +15,18 @@ import { CerealService } from '../../services/cereal-service';
 export class Navbar implements OnInit {
   cerealService = inject(CerealService);
   isLoggedIn = signal(false);
+  userName = signal('');
 
   ngOnInit(): void {
     this.cerealService.isLoggedIn.subscribe((val) => {
       this.isLoggedIn.set(val);
+      this.userName.set(localStorage.getItem('name') || '');
     });
   }
   logoutUser() {
     this.cerealService.updateLogin(false);
+    this.userName.set('');
+    localStorage.removeItem('name');
   }
 
   loginUser() {}
