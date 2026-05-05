@@ -7,6 +7,12 @@ import { catchError, throwError } from 'rxjs';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const platformId = inject(PLATFORM_ID);
 
+  // Skip adding token for authentication endpoints
+  const isAuthRequest =
+    req.url.includes('/login') || req.url.includes('/signup') || req.url.includes('/refresh');
+  if (isAuthRequest) {
+    return next(req);
+  }
   // Skip interceptor entirely on server
   if (isPlatformServer(platformId)) {
     return next(req);
