@@ -52,15 +52,51 @@
         <form class="form" [formGroup]="cerealForm">
           <div class="col p-1">{{ cereals.length }}</div>
           @for (titleValue of titleValues; track titleValue) {
-            <div class="col">
-              <input
-                class="form-control w-full p-1"
-                [type]="['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'"
-                [formControlName]="titleValue"
-                [class.field-name]="titleValue.toString() === 'name'"
-                [placeholder]="titleValue.toString()"
-              />
-            </div>
+            @if (titleValue !== 'image') {
+              <div class="col">
+                <input
+                  class="form-control w-full p-1"
+                  [type]="
+                    ['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'
+                  "
+                  [formControlName]="titleValue"
+                  [class.field-name]="titleValue.toString() === 'name'"
+                  [placeholder]="titleValue.toString()"
+                />
+              </div>
+            } @else {
+              <span
+                class="pick-image"
+                [title]="imagePreview"
+                (click)="imageSelected() === true ? setShowImage(true) : image.click()"
+                >{{ imageSelected() === true ? 'Preview' : '+ Img' }}</span
+              >
+              <input type="file" #image hidden (change)="onImageSelection($event)" />
+              <!-- Show image preview -->
+              @if (showImage()) {
+                <div class="image-container-shadow">
+                  <div
+                    class="image-container"
+                    [ngStyle]="{
+                      'background-image': 'url(' + imagePreview + ')',
+                      'background-size': 'cover',
+                      'background-position': 'center',
+                      width: '100%',
+                      height: '100%',
+                    }"
+                  >
+                    <div class="actions">
+                      <button class="btn btn-outline-primary me-5" (click)="image.click()">
+                        Change Image
+                      </button>
+                      <button class="btn btn-outline-secondary" (click)="setShowImage(false)">
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
           }
         </form>
       </div>
@@ -117,16 +153,3 @@
     </div>
   </div>
 </div>
-
-<!-- @if (addNewCereal) {
-  <tr>
-    <form [formGroup]="cerealForm">
-      <td>{{ cereals.length }}</td>
-      @for (titleValue of titleValues; track titleValue) {
-        <td>
-          <input class="form-control w-full p-0" type="text" [formControlName]="titleValue" />
-        </td>
-      }
-    </form>
-  </tr>
-} -->

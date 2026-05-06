@@ -35,6 +35,10 @@ export class DisplayCereals implements OnInit {
   addNewCereal = false;
   isFocused = false;
   isLoggedIn = signal(false);
+  imageSelected = signal(false);
+  imagePreview = '';
+  showImage = signal(false);
+
   titles = [
     'S.N',
     'Name',
@@ -106,10 +110,13 @@ export class DisplayCereals implements OnInit {
 
   addCereal() {
     if (this.addNewCereal) {
-      this.cerealService.addCereal(this.cerealForm.value).subscribe((cereal) => {
+      const formData = new FormData();
+      this.createFormData(formData);
+      this.cerealService.addCereal(formData as unknown as ICereal).subscribe((cereal) => {
         console.log(cereal);
       });
     }
+
     this.addNewCereal = !this.addNewCereal;
   }
   deleteCereal(id: string) {
@@ -131,5 +138,48 @@ export class DisplayCereals implements OnInit {
 
   checkCondition() {
     return ['Mfr', 'Name', 'Type'].includes(this.item);
+  }
+
+  onImageSelection(event: Event) {
+    this.imageSelected.set(true);
+    const file = (event.target as HTMLInputElement)?.files?.[0];
+    this.cerealForm.patchValue({
+      image: file,
+    });
+    this.cerealForm.get('image')?.updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file as File);
+    this.setShowImage(false);
+  }
+
+  setShowImage(value: boolean) {
+    this.showImage.set(value);
+  }
+
+  createFormData(formData: FormData) {
+    const formValue = this.cerealForm.value;
+
+    formData.append('name', formValue.name);
+    formData.append('mfr', formValue.mfr);
+    formData.append('type', formValue.type);
+    formData.append('calories', String(formValue.calories));
+    formData.append('protein', String(formValue.protein));
+    formData.append('sodium', String(formValue.sodium));
+    formData.append('fiber', String(formValue.fiber));
+    formData.append('sugar', String(formValue.sugar));
+    formData.append('fat', String(formValue.fat));
+    formData.append('potass', String(formValue.potass));
+    formData.append('vitamins', String(formValue.vitamins));
+    formData.append('self', String(formValue.self));
+    formData.append('weight', String(formValue.weight));
+    formData.append('cups', String(formValue.cups));
+    formData.append('rating', String(formValue.rating));
+    // must be key "image" (backend expects single("image"))
+    if (formValue.image) {
+      formData.append('image', formValue.image, formValue.image.name);
+    }
   }
 }
