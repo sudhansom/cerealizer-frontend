@@ -43,13 +43,31 @@
 
     .image-container-shadow {
         position: absolute;
-        top:0;
-        left:0;
+        top: 10%;
+        left: 40%;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 300px;
-        height: 300px;
+        width: 400px;
+        height: 400px;
         overflow: hidden;
+        padding: 24px;
+        border: 1px solid gray;
+        border-radius: 12px;
+        margin: auto;
+        padding-bottom: 70px;
+        background-color: rgb(228, 223, 223);
+        transform: translate(-25%, -10%);
+    }
+    .image-container {
+        border-radius: 12px;
+    }
+    
+    .actions {
+        position:absolute;
+        bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        width:85%;
     }
 }

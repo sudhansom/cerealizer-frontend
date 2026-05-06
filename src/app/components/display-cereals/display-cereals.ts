@@ -37,6 +37,7 @@ export class DisplayCereals implements OnInit {
   isLoggedIn = signal(false);
   imageSelected = signal(false);
   imagePreview = '';
+  showImage = signal(false);
 
   titles = [
     'S.N',
@@ -148,5 +149,10 @@ export class DisplayCereals implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file as File);
+    this.setShowImage(false);
+  }
+
+  setShowImage(value: boolean) {
+    this.showImage.set(value);
   }
 }
