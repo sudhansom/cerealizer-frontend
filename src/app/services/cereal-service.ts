@@ -63,6 +63,13 @@ export class CerealService {
       }),
     );
   }
+  updateImage(id: string, cereal: ICereal): Observable<ICereal> {
+    return this.http.put<ICereal>(`${BASE_URL}/cereal/image/${id}`, cereal).pipe(
+      tap(() => {
+        this.refreshUpdate();
+      }),
+    );
+  }
 
   addCereal(cereal: ICereal) {
     return this.http.post<ICereal>(`${BASE_URL}/cereal`, cereal).pipe(

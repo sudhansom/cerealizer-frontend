@@ -37,8 +37,8 @@ export class DisplayCereals implements OnInit {
   isFocused = false;
   isLoggedIn = signal(false);
   imageSelected = signal(false);
-  imagePreview = 'http://localhost:4300/uploads/images/a33786b1-3b1b-4ed3-8917-603917670722.png';
-  showImage = signal(true);
+  imagePreview = '';
+  showImage = signal(false);
 
   titles = [
     'S.N',
@@ -83,6 +83,7 @@ export class DisplayCereals implements OnInit {
       this.isLoggedIn.set(val);
     });
     this.cerealForm = new FormGroup({
+      _id: new FormControl(''),
       name: new FormControl('', Validators.required),
       mfr: new FormControl('', Validators.required),
       type: new FormControl('', Validators.required),
@@ -99,6 +100,8 @@ export class DisplayCereals implements OnInit {
       cups: new FormControl(null, Validators.required),
       rating: new FormControl(null, Validators.required),
       image: new FormControl(null, Validators.required),
+      __v: new FormControl(0),
+      id: new FormControl(''),
     });
   }
 
@@ -113,9 +116,25 @@ export class DisplayCereals implements OnInit {
     if (this.addNewCereal) {
       const formData = new FormData();
       this.createFormData(formData);
-      this.cerealService.addCereal(formData as unknown as ICereal).subscribe((cereal) => {
-        console.log(cereal);
-      });
+      if (!this.editCereal) {
+        console.log(formData.values);
+        console.log('currentCereal in adding', formData);
+
+        this.cerealService.addCereal(formData as unknown as ICereal).subscribe((cereal) => {
+          console.log(cereal);
+          this.addNewCereal = false;
+        });
+      } else {
+        if (this.cerealForm.value.image) {
+          formData.append('image', this.cerealForm.value.image, this.cerealForm.value.image.name);
+        }
+        this.cerealService
+          .updateImage(this.cerealForm.value.id, formData as unknown as ICereal)
+          .subscribe((cereal) => {
+            console.log(cereal);
+            this.editCereal = false;
+          });
+      }
     }
 
     this.addNewCereal = !this.addNewCereal;
@@ -153,19 +172,22 @@ export class DisplayCereals implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file as File);
-    this.setShowImage(false);
+    this.showImage.set(false);
   }
 
   setShowImage(value: boolean) {
     this.showImage.set(value);
+    this.editCereal = !this.editCereal;
+    this.addNewCereal = !this.addNewCereal;
   }
 
   getNsetImage(id: string) {
-    const currentCereal: ICereal = this.cereals.find((cereal) => cereal.id === id)!;
-    this.imagePreview = 'http://localhost:4300/' + currentCereal.image?.toString();
-    this.editCereal = true;
+    const currentCereal = this.cereals.find((cereal) => cereal.id === id)!;
+    const imagePath = (currentCereal.image ?? '').toString().replace(/\\/g, '/');
+    this.cerealForm.setValue({ ...currentCereal });
+    this.imagePreview = `http://localhost:4300/${imagePath}`;
+
     this.setShowImage(true);
-    console.log(this.imagePreview.toString());
     window.scrollTo({ top: 0 });
   }
 
