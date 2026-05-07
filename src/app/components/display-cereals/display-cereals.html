@@ -47,7 +47,7 @@
         </button>
       </div>
     </div>
-    @if (addNewCereal) {
+    @if (addNewCereal || editCereal) {
       <div class="row p-2">
         <form class="form" [formGroup]="cerealForm">
           <div class="col p-1">{{ cereals.length }}</div>
@@ -77,17 +77,17 @@
                 <div class="image-container-shadow">
                   <div
                     class="image-container"
-                    [ngStyle]="{
-                      'background-image': 'url(' + imagePreview + ')',
-                      'background-size': 'cover',
-                      'background-position': 'center',
-                      width: '100%',
-                      height: '100%',
-                    }"
+                    [style.background-image]="'url(' + imagePreview + ')'"
+                    style="
+                      background-size: cover;
+                      background-position: center;
+                      width: 100%;
+                      height: 100%;
+                    "
                   >
                     <div class="actions">
                       <button class="btn btn-outline-primary me-5" (click)="image.click()">
-                        Change Image
+                        {{ imagePreview ? 'Change' : 'Add' }} Image
                       </button>
                       <button class="btn btn-outline-secondary" (click)="setShowImage(false)">
                         Close
@@ -126,25 +126,31 @@
                   </button>
                 </td>
                 @for (titleValue of titleValues; track titleValue) {
-                  <td>
-                    <input
-                      class="form-control w-full border-0 bg-transparent p-0"
-                      [class.bg-light]="!isFocused"
-                      (focus)="isFocused = true"
-                      (blur)="isFocused = false"
-                      [class.w-auto]="titleValue.toString() === 'name'"
-                      type="text"
-                      [value]="cereal[titleValue]"
-                      (change)="updateCereal($event, cereal.id, titleValue.toString())"
-                      [disabled]="!isLoggedIn()"
-                    />
-                  </td>
+                  @if (titleValue !== 'image') {
+                    <td>
+                      <input
+                        class="form-control w-full border-0 bg-transparent p-0"
+                        [class.bg-light]="!isFocused"
+                        (focus)="isFocused = true"
+                        (blur)="isFocused = false"
+                        [class.w-auto]="titleValue.toString() === 'name'"
+                        type="text"
+                        [value]="cereal[titleValue]"
+                        (change)="updateCereal($event, cereal.id, titleValue.toString())"
+                        [disabled]="!isLoggedIn()"
+                      />
+                    </td>
+                  } @else {
+                    <td>
+                      <span
+                        class="pick-image"
+                        [title]="cereal['image']"
+                        (click)="getNsetImage(cereal['id'])"
+                        >{{ cereal['image'] ? 'Preview' : '+ Img' }}</span
+                      >
+                    </td>
+                  }
                 }
-
-                <!-- <td>
-                  <button class="btn btn-sm btn-primary me-1">Edit</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
-                </td> -->
               </tr>
             }
           </tbody>
@@ -153,3 +159,5 @@
     </div>
   </div>
 </div>
+
+<!-- (click)="cereal['image'] ? getNsetImage(cereal['image'] as string) : ''" -->
