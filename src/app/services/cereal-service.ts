@@ -59,11 +59,6 @@ export class CerealService {
     return this.http.get<ICereal[]>(url).pipe(
       tap((res) => {
         console.log(res);
-        this.searchInputs.next({
-          items: new Set<string>(),
-          conditions: [],
-          values: [],
-        });
       }),
     );
   }
