@@ -159,17 +159,15 @@ export class DisplayCereals implements OnInit {
 
   fetchCereals() {
     this.onAddConditions();
-    console.log(this.allItems, this.allConditions, this.allValues);
-    this.cerealService
-      .getFilteredCereals(this.allItems, this.allValues, this.allConditions)
-      .subscribe((values) => {
-        console.log('Values......', values);
-        this.cerealService.updateSearchInputs({
-          items: new Set<string>(),
-          conditions: [],
-          values: [],
-        });
-      });
+    // console.log(this.allItems, this.allConditions, this.allValues);
+    this.cerealService.updateSearchInputs({
+      items: this.allItems,
+      conditions: this.allConditions,
+      values: this.allValues,
+    });
+    this.allItems = new Set<string>();
+    this.allConditions = [];
+    this.allValues = [];
   }
 
   checkCondition() {

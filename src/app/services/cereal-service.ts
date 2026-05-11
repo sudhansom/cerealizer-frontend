@@ -46,18 +46,24 @@ export class CerealService {
   }
 
   getFilteredCereals(item: Set<string>, value: (number | string)[], condition: string[]) {
+    console.log(item, condition, value);
     const items = Array.from(item);
 
     let url = `${BASE_URL}/cereal/filter/?`;
 
     items.forEach((currentItem, index) => {
       if (index > 0) url += '&';
-      url += `item=${currentItem}&value=${value[index]}&condition=${condition[index]}`;
+      url += `item=${currentItem.toLowerCase()}&value=${value[index]}&condition=${condition[index]}`;
     });
 
     return this.http.get<ICereal[]>(url).pipe(
-      tap(() => {
-        this.refreshUpdate();
+      tap((res) => {
+        console.log(res);
+        this.searchInputs.next({
+          items: new Set<string>(),
+          conditions: [],
+          values: [],
+        });
       }),
     );
   }
