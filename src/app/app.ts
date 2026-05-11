@@ -45,11 +45,14 @@ export class App implements OnInit {
     this.cerealService.searchInputs
       .pipe(
         switchMap((values) => {
-          if (values.item && values.condition && values.value) {
+          const items = Array.from(values.items);
+          const amount = Array.from(values.values);
+          const conditions = Array.from(values.conditions);
+          if (items.length && conditions.length && amount.length) {
             return this.cerealService.getFilteredCereals(
-              values.item,
-              values.value,
-              values.condition,
+              values.items,
+              values.values,
+              values.conditions,
             );
           } else {
             return this.cerealService.getCereals();

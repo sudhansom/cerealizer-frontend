@@ -7,7 +7,7 @@
       <div>
         <h5 class="text-center">Search</h5>
         <div class="search d-flex justify-content-between gap-1">
-          <select class="form-select" [(ngModel)]="item" (ngModelChange)="onChangeItem()">
+          <select class="form-select" [(ngModel)]="item">
             <option value="">Item</option>
             @for (title of titles; track title.slice(0, 3)) {
               @if (!['S.N', 'Image'].includes(title)) {
@@ -36,12 +36,18 @@
             [type]="checkCondition() ? 'text' : 'number'"
             placeholder="Value"
             [title]="'Enter Text Value'"
-            (change)="onChangeItem()"
             [(ngModel)]="value"
           />
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary">+</button
-            ><button class="btn btn-sm btn-outline-primary">Go</button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              (click)="onAddConditions()"
+            >
+              +</button
+            ><button type="button" class="btn btn-sm btn-outline-primary" (click)="fetchCereals()">
+              Go
+            </button>
           </div>
         </div>
       </div>

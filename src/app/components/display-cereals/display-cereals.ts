@@ -30,6 +30,10 @@ export class DisplayCereals implements OnInit {
   item = 'Calories';
   condition = 'lessThan';
   value = this.checkCondition() ? '' : 0;
+  allItems: Set<string> = new Set<string>();
+  allConditions: string[] = [];
+  allValues: (string | number)[] = [];
+
   cerealForm!: FormGroup;
   cerealService = inject(CerealService);
   addNewCereal = false;
@@ -147,13 +151,25 @@ export class DisplayCereals implements OnInit {
     }
   }
 
-  onChangeItem() {
-    console.log('updated....');
-    this.cerealService.updateSearchInputs({
-      item: this.item,
-      condition: this.condition,
-      value: this.value,
-    });
+  onAddConditions() {
+    this.allItems = new Set([...this.allItems, this.item]);
+    this.allConditions = [...this.allConditions, this.condition];
+    this.allValues = [...this.allValues, this.value];
+  }
+
+  fetchCereals() {
+    this.onAddConditions();
+    console.log(this.allItems, this.allConditions, this.allValues);
+    this.cerealService
+      .getFilteredCereals(this.allItems, this.allValues, this.allConditions)
+      .subscribe((values) => {
+        console.log('Values......', values);
+        this.cerealService.updateSearchInputs({
+          items: new Set<string>(),
+          conditions: [],
+          values: [],
+        });
+      });
   }
 
   checkCondition() {

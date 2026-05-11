@@ -24,9 +24,9 @@ export class CerealService {
   }
 
   searchInputs = new BehaviorSubject<ISearchInputs>({
-    item: '',
-    condition: '',
-    value: '',
+    items: new Set<string>(),
+    conditions: [],
+    values: [],
   });
 
   updateSearchInputs(inputs: ISearchInputs) {
@@ -45,15 +45,21 @@ export class CerealService {
     return this.http.get<ICereal[]>(`${BASE_URL}/cereal`);
   }
 
-  getFilteredCereals(item: string, value: number | string, condition: string) {
-    return this.http.get<ICereal[]>(
-      `${BASE_URL}/cereal/filter/?item=${item}&value=${value}&condition=${condition}`,
+  getFilteredCereals(item: Set<string>, value: (number | string)[], condition: string[]) {
+    const items = Array.from(item);
+
+    let url = `${BASE_URL}/cereal/filter/?`;
+
+    items.forEach((currentItem, index) => {
+      if (index > 0) url += '&';
+      url += `item=${currentItem}&value=${value[index]}&condition=${condition[index]}`;
+    });
+
+    return this.http.get<ICereal[]>(url).pipe(
+      tap(() => {
+        this.refreshUpdate();
+      }),
     );
-    // .pipe(
-    //   tap(() => {
-    //     this.refreshUpdate();
-    //   }),
-    // );
   }
 
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {
