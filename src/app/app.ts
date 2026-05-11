@@ -34,7 +34,7 @@ export class App implements OnInit {
   cerealService = inject(CerealService);
 
   ngOnInit(): void {
-    this.loadData();
+    // this.loadData();
     this.cerealService.updateAvailable.subscribe((data) => {
       console.log('data loaded', data);
       this.loadData();
@@ -49,6 +49,7 @@ export class App implements OnInit {
           const amount = Array.from(values.values);
           const conditions = Array.from(values.conditions);
           if (items.length && conditions.length && amount.length) {
+            console.log('sort called.....');
             return this.cerealService.getFilteredCereals(
               values.items,
               values.values,
@@ -60,6 +61,7 @@ export class App implements OnInit {
         }),
       )
       .subscribe((cereals) => {
+        console.log(cereals);
         this.cereals.set(cereals);
       });
   }
