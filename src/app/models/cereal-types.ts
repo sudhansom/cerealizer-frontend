@@ -17,7 +17,7 @@ export interface ICereal {
   sugar: number;
   potass: number;
   vitamins: number;
-  self: number;
+  shelf: number;
   weight: number;
   cups: number;
   rating: number;

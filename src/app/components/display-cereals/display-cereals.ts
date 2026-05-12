@@ -58,7 +58,7 @@ export class DisplayCereals implements OnInit {
     'Sugar',
     'Potass',
     'Vitamins',
-    'Self',
+    'Shelf',
     'Weight',
     'Cups',
     'Rating',
@@ -76,7 +76,7 @@ export class DisplayCereals implements OnInit {
     'sugar',
     'potass',
     'vitamins',
-    'self',
+    'shelf',
     'weight',
     'cups',
     'rating',
@@ -100,7 +100,7 @@ export class DisplayCereals implements OnInit {
       fat: new FormControl(null, Validators.required),
       potass: new FormControl(null, Validators.required),
       vitamins: new FormControl(null, Validators.required),
-      self: new FormControl(null, Validators.required),
+      shelf: new FormControl(null, Validators.required),
       weight: new FormControl(null, Validators.required),
       cups: new FormControl(null, Validators.required),
       rating: new FormControl(null, Validators.required),
@@ -216,7 +216,7 @@ export class DisplayCereals implements OnInit {
     formData.append('fat', String(formValue.fat));
     formData.append('potass', String(formValue.potass));
     formData.append('vitamins', String(formValue.vitamins));
-    formData.append('self', String(formValue.self));
+    formData.append('shelf', String(formValue.shelf));
     formData.append('weight', String(formValue.weight));
     formData.append('cups', String(formValue.cups));
     formData.append('rating', String(formValue.rating));
