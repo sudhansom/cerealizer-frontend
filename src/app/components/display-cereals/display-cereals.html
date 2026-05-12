@@ -40,7 +40,11 @@
                 [title]="'Enter Text Value'"
                 [(ngModel)]="allValues[$index]"
               />
-              <button type="button" class="btn btn-outline-primary" (click)="removeAFilter($index)">
+              <button
+                type="button"
+                class="remove-btn btn btn-outline-danger"
+                (click)="removeAFilter($index)"
+              >
                 -
               </button>
             </div>

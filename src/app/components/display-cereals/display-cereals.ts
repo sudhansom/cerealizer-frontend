@@ -228,5 +228,7 @@ export class DisplayCereals implements OnInit {
     this.allItems.splice(index, 1);
     this.allConditions.splice(index, 1);
     this.allValues.splice(index, 1);
+
+    this.fetchCereals();
   }
 }
