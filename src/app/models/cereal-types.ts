@@ -25,7 +25,7 @@ export interface ICereal {
 }
 
 export interface ISearchInputs {
-  items: Set<string>;
+  items: string[];
   conditions: string[];
   values: (string | number)[];
 }

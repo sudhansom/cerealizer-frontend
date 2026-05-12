@@ -10,8 +10,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class Login {
   loggedIn = signal(false);
-  username: string = '';
-  password: string = '';
+  username: string = 'sudhan';
+  password: string = 'password';
   cerealService = inject(CerealService);
   errorMessage = signal(false);
 

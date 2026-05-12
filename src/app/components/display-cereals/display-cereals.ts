@@ -30,7 +30,7 @@ export class DisplayCereals implements OnInit {
   item = 'Calories';
   condition = 'lessThan';
   value = this.checkCondition() ? '' : 0;
-  allItems: Set<string> = new Set<string>();
+  allItems: string[] = [];
   allConditions: string[] = [];
   allValues: (string | number)[] = [];
 
@@ -152,22 +152,18 @@ export class DisplayCereals implements OnInit {
   }
 
   onAddConditions() {
-    this.allItems = new Set([...this.allItems, this.item]);
+    this.allItems = [...this.allItems, this.item];
     this.allConditions = [...this.allConditions, this.condition];
     this.allValues = [...this.allValues, this.value];
   }
 
   fetchCereals() {
-    this.onAddConditions();
-    // console.log(this.allItems, this.allConditions, this.allValues);
     this.cerealService.updateSearchInputs({
       items: this.allItems,
       conditions: this.allConditions,
       values: this.allValues,
     });
-    this.allItems = new Set<string>();
-    this.allConditions = [];
-    this.allValues = [];
+    console.log(this.allItems, this.allConditions, this.allValues);
   }
 
   checkCondition() {
@@ -227,5 +223,10 @@ export class DisplayCereals implements OnInit {
     if (formValue.image) {
       formData.append('image', formValue.image, formValue.image.name);
     }
+  }
+  removeAFilter(index: number) {
+    this.allItems.splice(index, 1);
+    this.allConditions.splice(index, 1);
+    this.allValues.splice(index, 1);
   }
 }

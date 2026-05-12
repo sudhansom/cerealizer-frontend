@@ -24,7 +24,7 @@ export class CerealService {
   }
 
   searchInputs = new BehaviorSubject<ISearchInputs>({
-    items: new Set<string>(),
+    items: [],
     conditions: [],
     values: [],
   });
@@ -45,7 +45,7 @@ export class CerealService {
     return this.http.get<ICereal[]>(`${BASE_URL}/cereal`);
   }
 
-  getFilteredCereals(item: Set<string>, value: (number | string)[], condition: string[]) {
+  getFilteredCereals(item: string[], value: (number | string)[], condition: string[]) {
     console.log(item, condition, value);
     const items = Array.from(item);
 
