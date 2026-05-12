@@ -195,7 +195,29 @@ export class DisplayCereals implements OnInit {
   getNsetImage(id: string) {
     const currentCereal = this.cereals.find((cereal) => cereal.id === id)!;
     const imagePath = (currentCereal.image ?? '').toString().replace(/\\/g, '/');
-    this.cerealForm.setValue({ ...currentCereal });
+    // API may still send Mongo field `self`; the form uses `shelf`. setValue rejects unknown keys.
+    const row = currentCereal as ICereal & { self?: number; _id?: string };
+    this.cerealForm.setValue({
+      _id: row._id ?? '',
+      name: row.name,
+      mfr: row.mfr,
+      type: row.type,
+      calories: row.calories,
+      protein: row.protein,
+      sodium: row.sodium,
+      fiber: row.fiber,
+      sugar: row.sugar,
+      fat: row.fat,
+      potass: row.potass,
+      vitamins: row.vitamins,
+      shelf: row.shelf ?? row.shelf ?? null,
+      weight: row.weight,
+      cups: row.cups,
+      rating: row.rating,
+      image: row.image ?? null,
+      __v: (row as { __v?: number }).__v ?? 0,
+      id: row.id,
+    });
     this.imagePreview = imagePath ? `http://localhost:4300/${imagePath}` : '';
 
     this.setShowImage(true);
