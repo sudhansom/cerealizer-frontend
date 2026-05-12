@@ -58,6 +58,7 @@
         padding-bottom: 70px;
         background-color: rgb(228, 223, 223);
         transform: translate(-25%, -10%);
+        z-index: 100;
     }
     .image-container {
         border-radius: 12px;
@@ -77,4 +78,23 @@
         align-items: center;
         align-self: center;
     }
+    .each-header{
+        position: relative;
+    }
+    .header-icon {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(199, 193, 193, 0.7);
+        opacity: 0;
+    }
+    .show-on-hover:hover {
+        opacity: 1;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items:end;
+        cursor: pointer;
+        color:#fff;
+    }
+
 }

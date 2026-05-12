@@ -128,7 +128,14 @@
           <thead class="table-light">
             <tr>
               @for (title of titles; track $index) {
-                <th>{{ title }}</th>
+                <th class="each-header" (click)="changeSorting(title)">
+                  {{ title }}
+                  @if (!['S.N', 'Image'].includes(title)) {
+                    <div class="header-icon show-on-hover">
+                      <mat-icon class="me-2">{{ arrow() }}</mat-icon>
+                    </div>
+                  }
+                </th>
               }
             </tr>
           </thead>

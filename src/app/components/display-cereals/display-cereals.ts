@@ -9,7 +9,7 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 interface User {
   id: number;
@@ -21,7 +21,7 @@ interface User {
 
 @Component({
   selector: 'app-display-cereals',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, MatIconModule],
   templateUrl: './display-cereals.html',
   styleUrl: './display-cereals.css',
 })
@@ -33,6 +33,7 @@ export class DisplayCereals implements OnInit {
   allItems: string[] = [];
   allConditions: string[] = [];
   allValues: (string | number)[] = [];
+  arrow = signal('none');
 
   cerealForm!: FormGroup;
   cerealService = inject(CerealService);
@@ -230,5 +231,18 @@ export class DisplayCereals implements OnInit {
     this.allValues.splice(index, 1);
 
     this.fetchCereals();
+  }
+  changeSorting(title: string) {
+    if (this.arrow() === 'none') {
+      this.arrow.set('arrow_downward');
+    } else if (this.arrow() === 'arrow_downward') {
+      this.arrow.set('arrow_upward');
+    } else if (this.arrow() === 'arrow_upward') {
+      this.arrow.set('none');
+    } else {
+      this.arrow.set('none');
+    }
+    console.log(title, this.arrow());
+    this.cerealService.updateSortOptions(title.toLowerCase(), this.arrow());
   }
 }

@@ -19,6 +19,19 @@ export class CerealService {
     token: '',
   };
 
+  sortOptions = new BehaviorSubject<{ item: string; condition: string }>({
+    item: '',
+    condition: '',
+  });
+
+  updateSortOptions(item: string, condition: string) {
+    this.sortOptions.next({
+      item,
+      condition,
+    });
+    this.refreshUpdate();
+  }
+
   setNameNToken(name: string, token: string) {
     ((this.nameToken.name = name), (this.nameToken.token = token));
   }
@@ -42,7 +55,9 @@ export class CerealService {
   }
 
   getCereals(): Observable<ICereal[]> {
-    return this.http.get<ICereal[]>(`${BASE_URL}/cereal`);
+    return this.http.get<ICereal[]>(
+      `${BASE_URL}/cereal/sorting/?item=${this.sortOptions.value.item}&condition=${this.sortOptions.value.condition}`,
+    );
   }
 
   getFilteredCereals(item: string[], value: (number | string)[], condition: string[]) {
