@@ -8,7 +8,7 @@
         <h5 class="text-center">Search</h5>
         <div class="search">
           @for (el of allItems; track $index) {
-            <div class="search-inputs d-flex justify-content-between gap-1">
+            <div class="search-inputs d-flex justify-content-between gap-1 mb-1">
               <select class="form-select" [(ngModel)]="allItems[$index]">
                 <option value="">Item</option>
                 @for (title of titles; track $index) {
@@ -163,7 +163,11 @@
                         (blur)="isFocused = false"
                         [class.w-auto]="titleValue.toString() === 'name'"
                         type="text"
-                        [value]="cereal[titleValue]"
+                        [value]="
+                          titleValue === 'rating'
+                            ? roundDownDecimal(cereal[titleValue])
+                            : cereal[titleValue]
+                        "
                         (change)="updateCereal($event, cereal.id, titleValue.toString())"
                         [disabled]="!isLoggedIn()"
                       />

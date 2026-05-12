@@ -267,4 +267,8 @@ export class DisplayCereals implements OnInit {
     console.log(title, this.arrow());
     this.cerealService.updateSortOptions(title.toLowerCase(), this.arrow());
   }
+
+  roundDownDecimal(value: number): number {
+    return Math.round(value);
+  }
 }
