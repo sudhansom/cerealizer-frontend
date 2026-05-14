@@ -1,277 +1,39 @@
 <div class="container mt-4">
   <div class="card shadow-sm">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-      <div>
-        <h5 class="mb-0 fw-bold">Cereal List</h5>
-      </div>
-      <div>
-        <h5 class="text-center">Search</h5>
-        <div class="search">
-          @for (el of allItems; track $index) {
-            <div class="search-inputs d-flex justify-content-between gap-1 mb-1">
-              <select class="form-select" [(ngModel)]="allItems[$index]">
-                <option value="">Item</option>
-                @for (title of titles; track $index) {
-                  @if (!nonSortableTitles.includes(title)) {
-                    <option [value]="title">{{ title }}</option>
-                  }
-                }
-              </select>
-              <select class="form-select p-1" [(ngModel)]="allConditions[$index]">
-                <option value="">Condition</option>
-                @if (!checkCondition()) {
-                  <option value="greaterThan">greaterThan</option>
-                  <option value="lessThan">lessThan</option>
-                  <option value="equalTo">equalTo</option>
-                  <option value="notEqualTo">!=</option>
-                }
-                @if (checkCondition()) {
-                  <option class="fs-1 fw-bold" value="equalTo">=</option>
-                  <option class="fs-1 fw-bold" value="notEqualTo">!=</option>
-                }
-              </select>
-              <input
-                class="w-25 search-input p-1"
-                [type]="checkCondition() ? 'text' : 'number'"
-                placeholder="Value"
-                [title]="'Enter Text Value'"
-                [(ngModel)]="allValues[$index]"
-              />
-              <button
-                type="button"
-                class="remove-btn btn btn-outline-danger"
-                (click)="removeAFilter($index)"
-              >
-                -
-              </button>
-            </div>
-          }
-          <div class="d-flex gap-2 mt-2 justify-content-center">
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary"
-              (click)="onAddConditions()"
-            >
-              +
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="fetchCereals()">
-              Go
-            </button>
-          </div>
-        </div>
-      </div>
+      <h5 class="mb-0 fw-bold">Cereal List</h5>
+
+      <app-cereal-search (search)="onSearch($event)" />
+
       <div class="btn-group">
         <button
           type="button"
           class="btn btn-sm btn-outline-primary"
           [disabled]="!isLoggedIn()"
           [title]="isLoggedIn() ? 'Add a new cereal' : 'Log in to add cereals'"
-          (click)="openAddModal()"
+          (click)="openAdd()"
         >
           Add Cereal
         </button>
       </div>
     </div>
 
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-light">
-            <tr>
-              @for (title of titles; track $index) {
-                <th class="each-header" (click)="changeSorting(title)">
-                  {{ title }}
-                  @if (!nonSortableTitles.includes(title)) {
-                    <div class="header-icon show-on-hover">
-                      <mat-icon class="me-2">{{ arrow() }}</mat-icon>
-                    </div>
-                  }
-                </th>
-              }
-            </tr>
-          </thead>
-          <tbody>
-            @for (cereal of cereals; track cereal.id) {
-              <tr>
-                <td class="text-center align-middle">
-                  {{ $index + 1 }}
-                </td>
-                @for (titleValue of titleValues; track $index) {
-                  @if (titleValue !== 'image') {
-                    <td>
-                      <input
-                        class="form-control w-full border-0 bg-transparent p-0"
-                        [class.bg-light]="!isFocused"
-                        (focus)="isFocused = true"
-                        (blur)="isFocused = false"
-                        [class.w-auto]="titleValue.toString() === 'name'"
-                        type="text"
-                        [value]="
-                          titleValue === 'rating'
-                            ? roundDownDecimal(cereal[titleValue])
-                            : cereal[titleValue]
-                        "
-                        (change)="updateCereal($event, cereal.id, titleValue.toString())"
-                        [disabled]="!isLoggedIn()"
-                      />
-                    </td>
-                  } @else {
-                    <td>
-                      <span
-                        class="pick-image"
-                        [title]="cereal['image']"
-                        (click)="openEditModal(cereal['id'])"
-                        >{{ cereal['image'] ? 'Preview' : '+ Img' }}</span
-                      >
-                    </td>
-                  }
-                }
-                <td class="text-center align-middle">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger delete-btn"
-                    [disabled]="!isLoggedIn()"
-                    [title]="isLoggedIn() ? 'Delete cereal' : 'Log in to delete'"
-                    (click)="deleteCereal(cereal.id)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <app-cereal-table
+      [cereals]="cereals"
+      [isLoggedIn]="isLoggedIn()"
+      (sortChange)="onSort($event)"
+      (cellChange)="onCellChange($event)"
+      (deleteRow)="onDelete($event)"
+      (editRow)="openEdit($event)"
+    />
   </div>
 </div>
 
-@if (modalMode() !== null) {
-  <div
-    class="modal fade show d-block cereal-modal"
-    tabindex="-1"
-    role="dialog"
-    aria-modal="true"
-    [attr.aria-label]="modalMode() === 'edit' ? 'Edit cereal' : 'Add new cereal'"
-    (click)="closeModal()"
-  >
-    <div
-      class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
-      role="document"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            {{ modalMode() === 'edit' ? 'Edit cereal' : 'Add a new cereal' }}
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            aria-label="Close"
-            (click)="closeModal()"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <!-- Hoisted to modal-body scope so it is reachable from both the
-               picker link inside the form and the "Change Image" button
-               inside the image-preview overlay below. -->
-          <input
-            #imageInput
-            type="file"
-            hidden
-            accept="image/*"
-            (change)="onImageSelection($event)"
-          />
-
-          <form [formGroup]="cerealForm" (ngSubmit)="submitModal()">
-            <div class="row g-3">
-              @for (titleValue of titleValues; track $index) {
-                @if (titleValue !== 'image') {
-                  <div class="col-12 col-sm-6 col-md-4">
-                    <label
-                      class="form-label small text-muted text-capitalize mb-1"
-                      [attr.for]="'field-' + titleValue"
-                    >
-                      {{ titleValue }}
-                    </label>
-                    <input
-                      [id]="'field-' + titleValue"
-                      class="form-control"
-                      [type]="
-                        ['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'
-                      "
-                      [formControlName]="titleValue"
-                      [placeholder]="titleValue.toString()"
-                    />
-                  </div>
-                } @else {
-                  <div class="col-12 col-sm-6 col-md-4 d-flex align-items-end">
-                    <div>
-                      <label class="form-label small text-muted mb-1 d-block">Image</label>
-                      <span
-                        class="pick-image"
-                        [title]="imagePreview"
-                        (click)="
-                          imageSelected() === true ? togglePreview(true) : imageInput.click()
-                        "
-                      >
-                        {{ imageSelected() === true ? 'Preview image' : '+ Add image' }}
-                      </span>
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          </form>
-
-          @if (showImagePreview()) {
-            <div class="image-container-shadow">
-              <div
-                class="image-container"
-                [style.background-image]="'url(' + imagePreview + ')'"
-                style="
-                  background-size: cover;
-                  background-position: center;
-                  width: 100%;
-                  height: 100%;
-                "
-              >
-                <div class="actions">
-                  <button
-                    type="button"
-                    class="btn btn-outline-primary me-5"
-                    (click)="imageInput.click()"
-                  >
-                    {{ imagePreview ? 'Change' : 'Add' }} Image
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    (click)="togglePreview(false)"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            [disabled]="cerealForm.invalid"
-            (click)="submitModal()"
-          >
-            {{ modalMode() === 'edit' ? 'Save changes' : 'Add cereal' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show"></div>
+@if (modalMode(); as mode) {
+  <app-cereal-form-dialog
+    [mode]="mode"
+    [initial]="editingCereal()"
+    (submitForm)="onSubmit($event)"
+    (cancel)="closeModal()"
+  />
 }

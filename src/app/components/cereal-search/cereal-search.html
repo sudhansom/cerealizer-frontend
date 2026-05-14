@@ -1,0 +1,64 @@
+<div>
+  <h5 class="text-center">Search</h5>
+  <div class="search">
+    @for (_ of items(); track $index) {
+      <div class="search-inputs d-flex justify-content-between gap-1 mb-1">
+        <select
+          class="form-select"
+          [ngModel]="items()[$index]"
+          (ngModelChange)="onItemChange($index, $event)"
+        >
+          <option value="">Item</option>
+          @for (title of titles; track title) {
+            @if (!nonSortableTitles.includes(title)) {
+              <option [value]="title">{{ title }}</option>
+            }
+          }
+        </select>
+        <select
+          class="form-select p-1"
+          [ngModel]="conditions()[$index]"
+          (ngModelChange)="onConditionChange($index, $event)"
+        >
+          <option value="">Condition</option>
+          @if (!isTextItem($index)) {
+            <option value="greaterThan">greaterThan</option>
+            <option value="lessThan">lessThan</option>
+            <option value="equalTo">equalTo</option>
+            <option value="notEqualTo">!=</option>
+          } @else {
+            <option class="fs-1 fw-bold" value="equalTo">=</option>
+            <option class="fs-1 fw-bold" value="notEqualTo">!=</option>
+          }
+        </select>
+        <input
+          class="w-25 search-input p-1"
+          [type]="isTextItem($index) ? 'text' : 'number'"
+          placeholder="Value"
+          title="Enter Value"
+          [ngModel]="values()[$index]"
+          (ngModelChange)="onValueChange($index, $event)"
+        />
+        <button
+          type="button"
+          class="remove-btn btn btn-outline-danger"
+          (click)="removeCondition($index)"
+          aria-label="Remove this filter"
+        >
+          -
+        </button>
+      </div>
+    }
+    <div class="d-flex gap-2 mt-2 justify-content-center">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        (click)="addCondition()"
+        aria-label="Add a filter row"
+      >
+        +
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="emit()">Go</button>
+    </div>
+  </div>
+</div>

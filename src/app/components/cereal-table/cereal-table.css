@@ -1,0 +1,39 @@
+:host {
+    .pick-image {
+        color: rgb(5, 5, 244);
+        cursor: pointer;
+    }
+    .pick-image:hover {
+        color: rgb(12, 4, 116);
+    }
+
+    .each-header {
+        position: relative;
+    }
+    .each-header.sortable {
+        cursor: pointer;
+    }
+    .header-icon {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(199, 193, 193, 0.7);
+        opacity: 0;
+    }
+    .show-on-hover:hover {
+        opacity: 1;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    .delete-btn {
+        white-space: nowrap;
+    }
+    .delete-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+}
