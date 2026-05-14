@@ -70,19 +70,27 @@ export class CerealService {
     // URL-encoded by Angular instead of corrupting the query string. The
     // backend expects repeated `item`/`value`/`condition` triplets, which
     // HttpParams supports natively via `.append`.
+    // The three arrays should always be the same length (one per filter
+    // row in the UI). If they aren't, truncate to the common minimum so a
+    // malformed triplet — e.g. `condition[index]` being `undefined` — can
+    // never reach the backend.
+    const length = Math.min(item.length, value.length, condition.length);
     let params = new HttpParams();
-    item.forEach((currentItem, index) => {
+    for (let index = 0; index < length; index++) {
+      const currentItem = item[index];
       const v = value[index];
-      // Skip rows the user left blank so the backend doesn't see a stray
+      const c = condition[index];
+      // Skip rows the user left blank, or rows where the matching item or
+      // condition is missing, so the backend doesn't see a stray
       // `value=` / `value=null` and treat it as a real filter.
-      if (v === null || v === undefined || v === '') {
-        return;
+      if (v === null || v === undefined || v === '' || !currentItem || !c) {
+        continue;
       }
       params = params
         .append('item', currentItem.toLowerCase())
         .append('value', String(v))
-        .append('condition', condition[index]);
-    });
+        .append('condition', c);
+    }
 
     return this.http.get<ICereal[]>(`${BASE_URL}/cereal/filter/`, { params });
   }
