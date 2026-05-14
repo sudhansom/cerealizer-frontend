@@ -93,6 +93,11 @@ export class DisplayCereals implements OnInit {
     if (!this.isLoggedIn()) {
       return;
     }
-    this.cerealService.deleteCereal(id).subscribe();
+    this.cerealService.deleteCereal(id).subscribe({
+      error: (err) =>
+        this.errorHandler.handleError(
+          new Error('Failed to delete cereal', { cause: err }),
+        ),
+    });
   }
 }

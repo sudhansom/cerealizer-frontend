@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, tap, pipe } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ICereal, ISearchInputs } from '../models/cereal-types';
@@ -66,24 +66,25 @@ export class CerealService {
     value: (number | string | null)[],
     condition: string[],
   ) {
-    const items = Array.from(item);
-
-    let url = `${BASE_URL}/cereal/filter/?`;
-    let appended = 0;
-
-    items.forEach((currentItem, index) => {
+    // Use HttpParams so values containing `&`, `=`, `?`, or any unicode are
+    // URL-encoded by Angular instead of corrupting the query string. The
+    // backend expects repeated `item`/`value`/`condition` triplets, which
+    // HttpParams supports natively via `.append`.
+    let params = new HttpParams();
+    item.forEach((currentItem, index) => {
       const v = value[index];
-      // Skip rows with no value selected so we don't emit `value=null` /
-      // `value=undefined` query params that the backend would mis-interpret.
+      // Skip rows the user left blank so the backend doesn't see a stray
+      // `value=` / `value=null` and treat it as a real filter.
       if (v === null || v === undefined || v === '') {
         return;
       }
-      if (appended > 0) url += '&';
-      url += `item=${currentItem.toLowerCase()}&value=${v}&condition=${condition[index]}`;
-      appended += 1;
+      params = params
+        .append('item', currentItem.toLowerCase())
+        .append('value', String(v))
+        .append('condition', condition[index]);
     });
 
-    return this.http.get<ICereal[]>(url);
+    return this.http.get<ICereal[]>(`${BASE_URL}/cereal/filter/`, { params });
   }
 
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {
@@ -114,16 +115,11 @@ export class CerealService {
   }
 
   deleteCereal(id: string) {
+    // Error handling is the caller's responsibility (so it can route failures
+    // through the central ErrorHandler or surface them in the UI); the
+    // service only takes care of refreshing on success.
     return this.http.delete<ICereal>(`${BASE_URL}/cereal/${id}`).pipe(
-      tap({
-        next: () => {
-          console.log('delete in service - success');
-          this.refreshUpdate();
-        },
-        error: (err) => {
-          console.log('delete in service - error:', err);
-        },
-      }),
+      tap(() => this.refreshUpdate()),
     );
   }
 
