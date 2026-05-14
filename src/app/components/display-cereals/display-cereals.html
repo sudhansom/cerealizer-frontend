@@ -130,7 +130,7 @@
               @for (title of titles; track $index) {
                 <th class="each-header" (click)="changeSorting(title)">
                   {{ title }}
-                  @if (!['S.N', 'Image'].includes(title)) {
+                  @if (!nonSortableTitles.includes(title)) {
                     <div class="header-icon show-on-hover">
                       <mat-icon class="me-2">{{ arrow() }}</mat-icon>
                     </div>
@@ -142,16 +142,8 @@
           <tbody>
             @for (cereal of cereals; track cereal.id) {
               <tr>
-                <td>
-                  <!-- <span class="hide-on-hover">{{ $index }} </span> -->
-                  <button
-                    class="btn btn-sm"
-                    [class.btn-outline-danger]="isLoggedIn()"
-                    [class.btn-custom-border]="isLoggedIn()"
-                    (click)="deleteCereal(cereal.id)"
-                  >
-                    {{ $index }}
-                  </button>
+                <td class="text-center align-middle">
+                  {{ $index + 1 }}
                 </td>
                 @for (titleValue of titleValues; track $index) {
                   @if (titleValue !== 'image') {
@@ -183,6 +175,17 @@
                     </td>
                   }
                 }
+                <td class="text-center align-middle">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger delete-btn"
+                    [disabled]="!isLoggedIn()"
+                    [title]="isLoggedIn() ? 'Delete cereal' : 'Log in to delete'"
+                    (click)="deleteCereal(cereal.id)"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             }
           </tbody>

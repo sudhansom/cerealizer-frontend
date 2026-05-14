@@ -96,5 +96,12 @@
         cursor: pointer;
         color:#fff;
     }
+    .delete-btn {
+        white-space: nowrap;
+    }
+    .delete-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
 
 }
