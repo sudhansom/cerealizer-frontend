@@ -63,7 +63,9 @@ export class DisplayCereals implements OnInit {
     'Cups',
     'Rating',
     'Image',
+    'Actions',
   ];
+  nonSortableTitles = ['S.N', 'Image', 'Actions'];
   titleValues: (keyof ICereal)[] = [
     'name',
     'mfr',
@@ -255,6 +257,9 @@ export class DisplayCereals implements OnInit {
     this.fetchCereals();
   }
   changeSorting(title: string) {
+    if (this.nonSortableTitles.includes(title)) {
+      return;
+    }
     if (this.arrow() === 'none') {
       this.arrow.set('arrow_downward');
     } else if (this.arrow() === 'arrow_downward') {
