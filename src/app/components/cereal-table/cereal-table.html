@@ -1,0 +1,71 @@
+<div class="card-body p-0">
+  <div class="table-responsive">
+    <table class="table table-hover table-striped mb-0">
+      <thead class="table-light">
+        <tr>
+          @for (title of titles; track title) {
+            <th
+              class="each-header"
+              [class.sortable]="isSortable(title)"
+              (click)="onHeaderClick(title)"
+            >
+              {{ title }}
+              @if (isSortable(title)) {
+                <div class="header-icon show-on-hover">
+                  <mat-icon class="me-2">{{ arrow() }}</mat-icon>
+                </div>
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (cereal of cereals(); track cereal.id; let i = $index) {
+          <tr>
+            <td class="text-center align-middle">{{ i + 1 }}</td>
+            @for (field of fields; track field) {
+              @if (field !== 'image') {
+                <td>
+                  <input
+                    class="form-control w-full border-0 bg-transparent p-0"
+                    [class.bg-light]="!isFocused"
+                    (focus)="isFocused = true"
+                    (blur)="isFocused = false"
+                    [class.w-auto]="field === 'name'"
+                    type="text"
+                    [value]="
+                      field === 'rating' ? roundDownDecimal(cereal[field]) : cereal[field]
+                    "
+                    (change)="onCellChange($event, cereal.id, field)"
+                    [disabled]="!isLoggedIn()"
+                  />
+                </td>
+              } @else {
+                <td>
+                  <span
+                    class="pick-image"
+                    [title]="cereal.image ?? ''"
+                    (click)="onEditImage(cereal.id)"
+                  >
+                    {{ cereal.image ? 'Preview' : '+ Img' }}
+                  </span>
+                </td>
+              }
+            }
+            <td class="text-center align-middle">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger delete-btn"
+                [disabled]="!isLoggedIn()"
+                [title]="isLoggedIn() ? 'Delete cereal' : 'Log in to delete'"
+                (click)="onDelete(cereal.id)"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

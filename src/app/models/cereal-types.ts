@@ -27,5 +27,10 @@ export interface ICereal {
 export interface ISearchInputs {
   items: string[];
   conditions: string[];
-  values: (string | number)[];
+  /**
+   * `null` represents a row whose value the user left blank; the service
+   * skips those rows when building the query so the backend doesn't see a
+   * `value=` param with `null`/`undefined`/`0` and treat it as a filter.
+   */
+  values: (string | number | null)[];
 }

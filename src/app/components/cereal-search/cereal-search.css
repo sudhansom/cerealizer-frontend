@@ -1,0 +1,20 @@
+:host {
+    .search {
+        width: 300px;
+    }
+    .search-input {
+        border: 1px solid rgb(197, 194, 194);
+        border-radius: 6px;
+        width: 48px;
+    }
+    .search .form-select {
+        width: 45%;
+    }
+    .remove-btn {
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-self: center;
+    }
+}
