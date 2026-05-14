@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, Input, OnInit, signal } from '@angular/core';
 import { ICereal } from '../../models/cereal-types';
 import { CerealService } from '../../services/cereal-service';
 import {
@@ -11,13 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-}
+type ModalMode = 'add' | 'edit' | null;
 
 @Component({
   selector: 'app-display-cereals',
@@ -27,9 +21,10 @@ interface User {
 })
 export class DisplayCereals implements OnInit {
   @Input() cereals!: ICereal[];
+
   item = 'Calories';
   condition = 'lessThan';
-  value = this.checkCondition() ? '' : 0;
+  value: string | number = this.checkCondition() ? '' : 0;
   allItems: string[] = [];
   allConditions: string[] = [];
   allValues: (string | number)[] = [];
@@ -37,13 +32,17 @@ export class DisplayCereals implements OnInit {
 
   cerealForm!: FormGroup;
   cerealService = inject(CerealService);
-  addNewCereal = false;
-  editCereal = false;
   isFocused = false;
   isLoggedIn = signal(false);
+
+  // Modal state — null means the add/edit modal is closed.
+  modalMode = signal<ModalMode>(null);
+
+  // Independent image-preview overlay (used inside the modal to show the
+  // selected/existing image at full size).
   imageSelected = signal(false);
   imagePreview = '';
-  showImage = signal(false);
+  showImagePreview = signal(false);
 
   titles = [
     'S.N',
@@ -89,116 +88,65 @@ export class DisplayCereals implements OnInit {
     this.cerealService.isLoggedIn.subscribe((val) => {
       this.isLoggedIn.set(val);
     });
-    this.cerealForm = new FormGroup({
+    this.cerealForm = this.buildForm();
+  }
+
+  private buildForm(): FormGroup {
+    return new FormGroup({
       _id: new FormControl(''),
       name: new FormControl('', Validators.required),
       mfr: new FormControl('', Validators.required),
       type: new FormControl('', Validators.required),
-      calories: new FormControl(null, Validators.required),
-      protein: new FormControl(null, Validators.required),
-      sodium: new FormControl(null, Validators.required),
-      fiber: new FormControl(null, Validators.required),
-      sugar: new FormControl(null, Validators.required),
-      fat: new FormControl(null, Validators.required),
-      potass: new FormControl(null, Validators.required),
-      vitamins: new FormControl(null, Validators.required),
-      shelf: new FormControl(null, Validators.required),
-      weight: new FormControl(null, Validators.required),
-      cups: new FormControl(null, Validators.required),
-      rating: new FormControl(null, Validators.required),
-      image: new FormControl(null, Validators.required),
+      calories: new FormControl<number | null>(null, Validators.required),
+      protein: new FormControl<number | null>(null, Validators.required),
+      sodium: new FormControl<number | null>(null, Validators.required),
+      fiber: new FormControl<number | null>(null, Validators.required),
+      sugar: new FormControl<number | null>(null, Validators.required),
+      fat: new FormControl<number | null>(null, Validators.required),
+      potass: new FormControl<number | null>(null, Validators.required),
+      vitamins: new FormControl<number | null>(null, Validators.required),
+      shelf: new FormControl<number | null>(null, Validators.required),
+      weight: new FormControl<number | null>(null, Validators.required),
+      cups: new FormControl<number | null>(null, Validators.required),
+      rating: new FormControl<number | null>(null, Validators.required),
+      image: new FormControl<File | string | null>(null, Validators.required),
       __v: new FormControl(0),
       id: new FormControl(''),
     });
   }
 
-  updateCereal(event: any, id: string, titleValue: string) {
-    console.log(event.target.value, id, titleValue);
-    this.cerealService.updateCereal(id, titleValue, event.target.value).subscribe((cereal) => {
-      console.log(cereal);
-    });
+  updateCereal(event: Event, id: string, titleValue: string) {
+    const target = event.target as HTMLInputElement;
+    this.cerealService.updateCereal(id, titleValue, target.value).subscribe();
   }
 
-  addCereal() {
-    if (this.addNewCereal) {
-      const formData = new FormData();
-      this.createFormData(formData);
-      if (!this.editCereal) {
-        console.log(formData.values);
-        console.log('currentCereal in adding', formData);
-
-        this.cerealService.addCereal(formData as unknown as ICereal).subscribe((cereal) => {
-          console.log(cereal);
-          this.addNewCereal = false;
-        });
-      } else {
-        if (this.cerealForm.value.image) {
-          formData.append('image', this.cerealForm.value.image, this.cerealForm.value.image.name);
-        }
-        this.cerealService
-          .updateImage(this.cerealForm.value.id, formData as unknown as ICereal)
-          .subscribe((cereal) => {
-            console.log(cereal);
-            this.editCereal = false;
-          });
-      }
-    }
-
-    this.addNewCereal = !this.addNewCereal;
-  }
   deleteCereal(id: string) {
     if (this.isLoggedIn()) {
-      this.cerealService.deleteCereal(id).subscribe((cereal) => {
-        console.log('deleted', cereal);
-      });
+      this.cerealService.deleteCereal(id).subscribe();
     }
   }
 
-  onAddConditions() {
-    this.allItems = [...this.allItems, this.item];
-    this.allConditions = [...this.allConditions, this.condition];
-    this.allValues = [...this.allValues, this.value];
+  // -------- Modal lifecycle --------
+
+  openAddModal() {
+    if (!this.isLoggedIn()) {
+      return;
+    }
+    this.resetFormState();
+    this.modalMode.set('add');
   }
 
-  fetchCereals() {
-    this.cerealService.updateSearchInputs({
-      items: this.allItems,
-      conditions: this.allConditions,
-      values: this.allValues,
-    });
-    console.log(this.allItems, this.allConditions, this.allValues);
-  }
-
-  checkCondition() {
-    return ['Mfr', 'Name', 'Type'].includes(this.item);
-  }
-
-  onImageSelection(event: Event) {
-    this.imageSelected.set(true);
-    const file = (event.target as HTMLInputElement)?.files?.[0];
-    this.cerealForm.patchValue({
-      image: file,
-    });
-    this.cerealForm.get('image')?.updateValueAndValidity();
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-    };
-    reader.readAsDataURL(file as File);
-    this.showImage.set(false);
-  }
-
-  setShowImage(value: boolean) {
-    this.showImage.set(value);
-    this.editCereal = !this.editCereal;
-    this.addNewCereal = !this.addNewCereal;
-  }
-
-  getNsetImage(id: string) {
-    const currentCereal = this.cereals.find((cereal) => cereal.id === id)!;
-    const imagePath = (currentCereal.image ?? '').toString().replace(/\\/g, '/');
+  openEditModal(id: string) {
+    if (!this.isLoggedIn()) {
+      return;
+    }
+    const current = this.cereals.find((cereal) => cereal.id === id);
+    if (!current) {
+      return;
+    }
+    const imagePath = (current.image ?? '').toString().replace(/\\/g, '/');
     // API may still send Mongo field `self`; the form uses `shelf`. setValue rejects unknown keys.
-    const row = currentCereal as ICereal & { self?: number; _id?: string };
+    const row = current as ICereal & { self?: number; _id?: string };
     this.cerealForm.setValue({
       _id: row._id ?? '',
       name: row.name,
@@ -212,7 +160,7 @@ export class DisplayCereals implements OnInit {
       fat: row.fat,
       potass: row.potass,
       vitamins: row.vitamins,
-      shelf: row.shelf ?? row.shelf ?? null,
+      shelf: row.shelf ?? null,
       weight: row.weight,
       cups: row.cups,
       rating: row.rating,
@@ -221,12 +169,113 @@ export class DisplayCereals implements OnInit {
       id: row.id,
     });
     this.imagePreview = imagePath ? `http://localhost:4300/${imagePath}` : '';
-
-    this.setShowImage(true);
-    window.scrollTo({ top: 0 });
+    this.imageSelected.set(!!imagePath);
+    this.modalMode.set('edit');
   }
 
-  createFormData(formData: FormData) {
+  closeModal() {
+    this.modalMode.set(null);
+    this.resetFormState();
+  }
+
+  submitModal() {
+    const mode = this.modalMode();
+    if (!mode) {
+      return;
+    }
+    if (this.cerealForm.invalid) {
+      this.cerealForm.markAllAsTouched();
+      return;
+    }
+
+    const formData = new FormData();
+    this.createFormData(formData);
+
+    if (mode === 'add') {
+      this.cerealService.addCereal(formData as unknown as ICereal).subscribe({
+        next: () => this.closeModal(),
+        error: (err) => console.error('Failed to add cereal', err),
+      });
+    } else {
+      this.cerealService
+        .updateImage(this.cerealForm.value.id, formData as unknown as ICereal)
+        .subscribe({
+          next: () => this.closeModal(),
+          error: (err) => console.error('Failed to update cereal', err),
+        });
+    }
+  }
+
+  togglePreview(value: boolean) {
+    this.showImagePreview.set(value);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.showImagePreview()) {
+      this.togglePreview(false);
+      return;
+    }
+    if (this.modalMode()) {
+      this.closeModal();
+    }
+  }
+
+  private resetFormState() {
+    if (this.cerealForm) {
+      this.cerealForm.reset({ __v: 0, _id: '', id: '' });
+    }
+    this.imagePreview = '';
+    this.imageSelected.set(false);
+    this.showImagePreview.set(false);
+  }
+
+  // -------- Search/filter --------
+
+  onAddConditions() {
+    this.allItems = [...this.allItems, this.item];
+    this.allConditions = [...this.allConditions, this.condition];
+    this.allValues = [...this.allValues, this.value];
+  }
+
+  fetchCereals() {
+    this.cerealService.updateSearchInputs({
+      items: this.allItems,
+      conditions: this.allConditions,
+      values: this.allValues,
+    });
+  }
+
+  checkCondition() {
+    return ['Mfr', 'Name', 'Type'].includes(this.item);
+  }
+
+  removeAFilter(index: number) {
+    this.allItems.splice(index, 1);
+    this.allConditions.splice(index, 1);
+    this.allValues.splice(index, 1);
+    this.fetchCereals();
+  }
+
+  // -------- Image handling --------
+
+  onImageSelection(event: Event) {
+    const file = (event.target as HTMLInputElement)?.files?.[0];
+    if (!file) {
+      return;
+    }
+    this.imageSelected.set(true);
+    this.cerealForm.patchValue({ image: file });
+    this.cerealForm.get('image')?.updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+    this.showImagePreview.set(false);
+  }
+
+  private createFormData(formData: FormData) {
     const formValue = this.cerealForm.value;
 
     formData.append('name', formValue.name);
@@ -244,18 +293,16 @@ export class DisplayCereals implements OnInit {
     formData.append('weight', String(formValue.weight));
     formData.append('cups', String(formValue.cups));
     formData.append('rating', String(formValue.rating));
-    // must be key "image" (backend expects single("image"))
-    if (formValue.image) {
+    // Only append `image` when the user picked a NEW file. In edit mode the
+    // form may still hold the existing image URL (string) from the server,
+    // which has no `.name` and must not be sent as the multipart payload.
+    if (formValue.image instanceof File) {
       formData.append('image', formValue.image, formValue.image.name);
     }
   }
-  removeAFilter(index: number) {
-    this.allItems.splice(index, 1);
-    this.allConditions.splice(index, 1);
-    this.allValues.splice(index, 1);
 
-    this.fetchCereals();
-  }
+  // -------- Sorting --------
+
   changeSorting(title: string) {
     if (this.nonSortableTitles.includes(title)) {
       return;
@@ -264,12 +311,9 @@ export class DisplayCereals implements OnInit {
       this.arrow.set('arrow_downward');
     } else if (this.arrow() === 'arrow_downward') {
       this.arrow.set('arrow_upward');
-    } else if (this.arrow() === 'arrow_upward') {
-      this.arrow.set('none');
     } else {
       this.arrow.set('none');
     }
-    console.log(title, this.arrow());
     this.cerealService.updateSortOptions(title.toLowerCase(), this.arrow());
   }
 

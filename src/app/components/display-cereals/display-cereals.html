@@ -12,7 +12,7 @@
               <select class="form-select" [(ngModel)]="allItems[$index]">
                 <option value="">Item</option>
                 @for (title of titles; track $index) {
-                  @if (!['S.N', 'Image'].includes(title)) {
+                  @if (!nonSortableTitles.includes(title)) {
                     <option [value]="title">{{ title }}</option>
                   }
                 }
@@ -23,13 +23,10 @@
                   <option value="greaterThan">greaterThan</option>
                   <option value="lessThan">lessThan</option>
                   <option value="equalTo">equalTo</option>
-                  <!-- <option value="greaterThanOrEqualto">>=</option>
-                  <option value="lessThanOrEqualto"><=</option> -->
                   <option value="notEqualTo">!=</option>
                 }
                 @if (checkCondition()) {
                   <option class="fs-1 fw-bold" value="equalTo">=</option>
-
                   <option class="fs-1 fw-bold" value="notEqualTo">!=</option>
                 }
               </select>
@@ -55,73 +52,27 @@
               class="btn btn-sm btn-outline-primary"
               (click)="onAddConditions()"
             >
-              +</button
-            ><button type="button" class="btn btn-sm btn-outline-primary" (click)="fetchCereals()">
+              +
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="fetchCereals()">
               Go
             </button>
           </div>
         </div>
       </div>
       <div class="btn-group">
-        <button class="btn btn-sm btn-outline-primary" (click)="addCereal()">
-          {{ addNewCereal ? 'Save' : 'Add Cereal' }}
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary"
+          [disabled]="!isLoggedIn()"
+          [title]="isLoggedIn() ? 'Add a new cereal' : 'Log in to add cereals'"
+          (click)="openAddModal()"
+        >
+          Add Cereal
         </button>
       </div>
     </div>
-    @if (addNewCereal || editCereal) {
-      <div class="row p-2">
-        <form class="form" [formGroup]="cerealForm">
-          <div class="col p-1">{{ cereals.length }}</div>
-          @for (titleValue of titleValues; track $index) {
-            @if (titleValue !== 'image') {
-              <div class="col">
-                <input
-                  class="form-control w-full p-1"
-                  [type]="
-                    ['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'
-                  "
-                  [formControlName]="titleValue"
-                  [class.field-name]="titleValue.toString() === 'name'"
-                  [placeholder]="titleValue.toString()"
-                />
-              </div>
-            } @else {
-              <span
-                class="pick-image"
-                [title]="imagePreview"
-                (click)="imageSelected() === true ? setShowImage(true) : image.click()"
-                >{{ imageSelected() === true ? 'Preview' : '+ Img' }}</span
-              >
-              <input type="file" #image hidden (change)="onImageSelection($event)" />
-              <!-- Show image preview -->
-              @if (showImage()) {
-                <div class="image-container-shadow">
-                  <div
-                    class="image-container"
-                    [style.background-image]="'url(' + imagePreview + ')'"
-                    style="
-                      background-size: cover;
-                      background-position: center;
-                      width: 100%;
-                      height: 100%;
-                    "
-                  >
-                    <div class="actions">
-                      <button class="btn btn-outline-primary me-5" (click)="image.click()">
-                        {{ imagePreview ? 'Change' : 'Add' }} Image
-                      </button>
-                      <button class="btn btn-outline-secondary" (click)="setShowImage(false)">
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              }
-            }
-          }
-        </form>
-      </div>
-    }
+
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover table-striped mb-0">
@@ -169,7 +120,7 @@
                       <span
                         class="pick-image"
                         [title]="cereal['image']"
-                        (click)="getNsetImage(cereal['id'])"
+                        (click)="openEditModal(cereal['id'])"
                         >{{ cereal['image'] ? 'Preview' : '+ Img' }}</span
                       >
                     </td>
@@ -195,4 +146,132 @@
   </div>
 </div>
 
-<!-- (click)="cereal['image'] ? getNsetImage(cereal['image'] as string) : ''" -->
+@if (modalMode() !== null) {
+  <div
+    class="modal fade show d-block cereal-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="modalMode() === 'edit' ? 'Edit cereal' : 'Add new cereal'"
+    (click)="closeModal()"
+  >
+    <div
+      class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+      role="document"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ modalMode() === 'edit' ? 'Edit cereal' : 'Add a new cereal' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            (click)="closeModal()"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <!-- Hoisted to modal-body scope so it is reachable from both the
+               picker link inside the form and the "Change Image" button
+               inside the image-preview overlay below. -->
+          <input
+            #imageInput
+            type="file"
+            hidden
+            accept="image/*"
+            (change)="onImageSelection($event)"
+          />
+
+          <form [formGroup]="cerealForm" (ngSubmit)="submitModal()">
+            <div class="row g-3">
+              @for (titleValue of titleValues; track $index) {
+                @if (titleValue !== 'image') {
+                  <div class="col-12 col-sm-6 col-md-4">
+                    <label
+                      class="form-label small text-muted text-capitalize mb-1"
+                      [attr.for]="'field-' + titleValue"
+                    >
+                      {{ titleValue }}
+                    </label>
+                    <input
+                      [id]="'field-' + titleValue"
+                      class="form-control"
+                      [type]="
+                        ['name', 'mfr', 'type'].includes(titleValue.toString()) ? 'text' : 'number'
+                      "
+                      [formControlName]="titleValue"
+                      [placeholder]="titleValue.toString()"
+                    />
+                  </div>
+                } @else {
+                  <div class="col-12 col-sm-6 col-md-4 d-flex align-items-end">
+                    <div>
+                      <label class="form-label small text-muted mb-1 d-block">Image</label>
+                      <span
+                        class="pick-image"
+                        [title]="imagePreview"
+                        (click)="
+                          imageSelected() === true ? togglePreview(true) : imageInput.click()
+                        "
+                      >
+                        {{ imageSelected() === true ? 'Preview image' : '+ Add image' }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </form>
+
+          @if (showImagePreview()) {
+            <div class="image-container-shadow">
+              <div
+                class="image-container"
+                [style.background-image]="'url(' + imagePreview + ')'"
+                style="
+                  background-size: cover;
+                  background-position: center;
+                  width: 100%;
+                  height: 100%;
+                "
+              >
+                <div class="actions">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary me-5"
+                    (click)="imageInput.click()"
+                  >
+                    {{ imagePreview ? 'Change' : 'Add' }} Image
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="togglePreview(false)"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="cerealForm.invalid"
+            (click)="submitModal()"
+          >
+            {{ modalMode() === 'edit' ? 'Save changes' : 'Add cereal' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
