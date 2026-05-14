@@ -53,6 +53,12 @@ export const CEREAL_FIELDS: readonly (keyof ICereal)[] = [
 /** Fields whose value is a free-form string (the rest are numeric). */
 export const TEXT_FIELDS: readonly string[] = ['name', 'mfr', 'type'];
 
+/**
+ * Determines whether a cereal property is treated as a free-form text field.
+ *
+ * @param field - The cereal property name to check
+ * @returns `true` if the field is one of the configured text fields (`'name'`, `'mfr'`, `'type'`), `false` otherwise.
+ */
 export function isTextField(field: keyof ICereal | string): boolean {
   return TEXT_FIELDS.includes(String(field));
 }
