@@ -83,10 +83,20 @@ export class CerealFormDialog implements OnInit {
     this.imageSelected.set(true);
     this.cerealForm.patchValue({ image: file });
     this.cerealForm.get('image')?.updateValueAndValidity();
+    this.showImagePreview.set(false);
     const reader = new FileReader();
     reader.onload = () => this.imagePreview.set(reader.result as string);
+    reader.onerror = () => this.resetImagePreview();
+    reader.onabort = () => this.resetImagePreview();
     reader.readAsDataURL(file);
+  }
+
+  private resetImagePreview() {
+    this.imagePreview.set('');
+    this.imageSelected.set(false);
     this.showImagePreview.set(false);
+    this.cerealForm.patchValue({ image: null });
+    this.cerealForm.get('image')?.updateValueAndValidity();
   }
 
   protected togglePreview(value: boolean) {
