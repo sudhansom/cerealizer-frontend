@@ -2,6 +2,10 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.5.
 
+> Contributing? See [`docs/AUTH.md`](./docs/AUTH.md) for how to authenticate
+> against GitHub and handle credentials safely. **Never commit tokens,
+> passwords, or other secrets** to this repository.
+
 ## Development server
 
 To start a local development server, run:
