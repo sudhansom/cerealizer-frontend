@@ -59,7 +59,7 @@ export class CerealFormDialog implements OnInit {
     }
   }
 
-  protected isTextField(field: keyof ICereal | string): boolean {
+  protected isTextField(field: keyof ICereal): boolean {
     return isTextField(field);
   }
 

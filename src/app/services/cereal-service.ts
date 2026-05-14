@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, tap, pipe } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { ICereal, ISearchInputs } from '../models/cereal-types';
 
-const BASE_URL = 'http://localhost:4300/api';
+const BASE_URL = `${environment.apiHost}/api`;
 
 @Injectable({
   providedIn: 'root',
@@ -60,22 +61,29 @@ export class CerealService {
     );
   }
 
-  getFilteredCereals(item: string[], value: (number | string)[], condition: string[]) {
-    console.log(item, condition, value);
+  getFilteredCereals(
+    item: string[],
+    value: (number | string | null)[],
+    condition: string[],
+  ) {
     const items = Array.from(item);
 
     let url = `${BASE_URL}/cereal/filter/?`;
+    let appended = 0;
 
     items.forEach((currentItem, index) => {
-      if (index > 0) url += '&';
-      url += `item=${currentItem.toLowerCase()}&value=${value[index]}&condition=${condition[index]}`;
+      const v = value[index];
+      // Skip rows with no value selected so we don't emit `value=null` /
+      // `value=undefined` query params that the backend would mis-interpret.
+      if (v === null || v === undefined || v === '') {
+        return;
+      }
+      if (appended > 0) url += '&';
+      url += `item=${currentItem.toLowerCase()}&value=${v}&condition=${condition[index]}`;
+      appended += 1;
     });
 
-    return this.http.get<ICereal[]>(url).pipe(
-      tap((res) => {
-        console.log(res);
-      }),
-    );
+    return this.http.get<ICereal[]>(url);
   }
 
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {
@@ -85,16 +93,20 @@ export class CerealService {
       }),
     );
   }
-  updateImage(id: string, cereal: ICereal): Observable<ICereal> {
-    return this.http.put<ICereal>(`${BASE_URL}/cereal/image/${id}`, cereal).pipe(
+  // `payload` is typed as `ICereal | FormData` because the form dialog
+  // submits multipart/form-data (it has to, to attach the image File);
+  // HttpClient knows how to serialize either, so accepting both removes
+  // the need for `as unknown as ICereal` casts at call sites.
+  updateImage(id: string, payload: ICereal | FormData): Observable<ICereal> {
+    return this.http.put<ICereal>(`${BASE_URL}/cereal/image/${id}`, payload).pipe(
       tap(() => {
         this.refreshUpdate();
       }),
     );
   }
 
-  addCereal(cereal: ICereal) {
-    return this.http.post<ICereal>(`${BASE_URL}/cereal`, cereal).pipe(
+  addCereal(payload: ICereal | FormData) {
+    return this.http.post<ICereal>(`${BASE_URL}/cereal`, payload).pipe(
       tap(() => {
         this.refreshUpdate();
       }),
@@ -119,10 +131,7 @@ export class CerealService {
     name: string;
     password: string;
   }): Observable<{ userId: string; token: string }> {
-    return this.http.post<{ userId: string; token: string }>(
-      'http://localhost:4300/api/users/login',
-      user,
-    );
+    return this.http.post<{ userId: string; token: string }>(`${BASE_URL}/users/login`, user);
   }
 
   updateLogin(val: boolean) {
