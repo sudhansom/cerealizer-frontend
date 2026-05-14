@@ -1,0 +1,14 @@
+# .coderabbit.yaml
+language: en-US
+
+reviews:
+  profile: chill # Options: chill, assertive, followup
+  path_filters:
+    - '!**/node_modules/**'
+    - '!**/*.lock'
+    - '!**/dist/**'
+  path_instructions:
+    - path: 'src/**'
+      instructions: |
+        - Focus on type safety and error handling.
+        - Ensure there are no `console.log`s left in the code.
