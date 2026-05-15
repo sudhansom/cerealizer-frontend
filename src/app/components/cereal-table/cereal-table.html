@@ -20,7 +20,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (cereal of cereals(); track cereal.id; let i = $index) {
+        @for (cereal of cereals(); track $index; let i = $index) {
           <tr>
             <td class="text-center align-middle">{{ i + 1 }}</td>
             @for (field of fields; track $index) {
