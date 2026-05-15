@@ -35,7 +35,7 @@
 
         <form [formGroup]="cerealForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
-            @for (field of fields; track field) {
+            @for (field of fields; track $index) {
               @if (field !== 'image') {
                 <div class="col-12 col-sm-6 col-md-4">
                   <label
