@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, tap, pipe } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { ICereal, ISearchInputs } from '../models/cereal-types';
 
-const BASE_URL = 'http://localhost:4300/api';
+const BASE_URL = `${environment.apiHost}/api`;
 
 @Injectable({
   providedIn: 'root',
@@ -60,22 +61,38 @@ export class CerealService {
     );
   }
 
-  getFilteredCereals(item: string[], value: (number | string)[], condition: string[]) {
-    console.log(item, condition, value);
-    const items = Array.from(item);
+  getFilteredCereals(
+    item: string[],
+    value: (number | string | null)[],
+    condition: string[],
+  ) {
+    // Use HttpParams so values containing `&`, `=`, `?`, or any unicode are
+    // URL-encoded by Angular instead of corrupting the query string. The
+    // backend expects repeated `item`/`value`/`condition` triplets, which
+    // HttpParams supports natively via `.append`.
+    // The three arrays should always be the same length (one per filter
+    // row in the UI). If they aren't, truncate to the common minimum so a
+    // malformed triplet — e.g. `condition[index]` being `undefined` — can
+    // never reach the backend.
+    const length = Math.min(item.length, value.length, condition.length);
+    let params = new HttpParams();
+    for (let index = 0; index < length; index++) {
+      const currentItem = item[index];
+      const v = value[index];
+      const c = condition[index];
+      // Skip rows the user left blank, or rows where the matching item or
+      // condition is missing, so the backend doesn't see a stray
+      // `value=` / `value=null` and treat it as a real filter.
+      if (v === null || v === undefined || v === '' || !currentItem || !c) {
+        continue;
+      }
+      params = params
+        .append('item', currentItem.toLowerCase())
+        .append('value', String(v))
+        .append('condition', c);
+    }
 
-    let url = `${BASE_URL}/cereal/filter/?`;
-
-    items.forEach((currentItem, index) => {
-      if (index > 0) url += '&';
-      url += `item=${currentItem.toLowerCase()}&value=${value[index]}&condition=${condition[index]}`;
-    });
-
-    return this.http.get<ICereal[]>(url).pipe(
-      tap((res) => {
-        console.log(res);
-      }),
-    );
+    return this.http.get<ICereal[]>(`${BASE_URL}/cereal/filter/`, { params });
   }
 
   updateCereal(id: string, key: string, value: string | number): Observable<ICereal> {
@@ -85,16 +102,20 @@ export class CerealService {
       }),
     );
   }
-  updateImage(id: string, cereal: ICereal): Observable<ICereal> {
-    return this.http.put<ICereal>(`${BASE_URL}/cereal/image/${id}`, cereal).pipe(
+  // `payload` is typed as `ICereal | FormData` because the form dialog
+  // submits multipart/form-data (it has to, to attach the image File);
+  // HttpClient knows how to serialize either, so accepting both removes
+  // the need for `as unknown as ICereal` casts at call sites.
+  updateImage(id: string, payload: ICereal | FormData): Observable<ICereal> {
+    return this.http.put<ICereal>(`${BASE_URL}/cereal/image/${id}`, payload).pipe(
       tap(() => {
         this.refreshUpdate();
       }),
     );
   }
 
-  addCereal(cereal: ICereal) {
-    return this.http.post<ICereal>(`${BASE_URL}/cereal`, cereal).pipe(
+  addCereal(payload: ICereal | FormData) {
+    return this.http.post<ICereal>(`${BASE_URL}/cereal`, payload).pipe(
       tap(() => {
         this.refreshUpdate();
       }),
@@ -102,16 +123,11 @@ export class CerealService {
   }
 
   deleteCereal(id: string) {
+    // Error handling is the caller's responsibility (so it can route failures
+    // through the central ErrorHandler or surface them in the UI); the
+    // service only takes care of refreshing on success.
     return this.http.delete<ICereal>(`${BASE_URL}/cereal/${id}`).pipe(
-      tap({
-        next: () => {
-          console.log('delete in service - success');
-          this.refreshUpdate();
-        },
-        error: (err) => {
-          console.log('delete in service - error:', err);
-        },
-      }),
+      tap(() => this.refreshUpdate()),
     );
   }
 
@@ -119,10 +135,7 @@ export class CerealService {
     name: string;
     password: string;
   }): Observable<{ userId: string; token: string }> {
-    return this.http.post<{ userId: string; token: string }>(
-      'http://localhost:4300/api/users/login',
-      user,
-    );
+    return this.http.post<{ userId: string; token: string }>(`${BASE_URL}/users/login`, user);
   }
 
   updateLogin(val: boolean) {

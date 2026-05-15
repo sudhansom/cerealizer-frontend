@@ -4,6 +4,7 @@ import { ICereal } from '../../models/cereal-types';
 import {
   CEREAL_FIELDS,
   CEREAL_TITLES,
+  CerealTitle,
   NON_SORTABLE_TITLES,
 } from '../../models/cereal-display.constants';
 
@@ -45,11 +46,11 @@ export class CerealTable {
   protected readonly arrow = signal<SortArrow>('none');
   protected isFocused = false;
 
-  protected isSortable(title: string): boolean {
+  protected isSortable(title: CerealTitle): boolean {
     return !this.nonSortableTitles.includes(title);
   }
 
-  protected onHeaderClick(title: string) {
+  protected onHeaderClick(title: CerealTitle) {
     if (!this.isSortable(title)) {
       return;
     }
@@ -72,7 +73,7 @@ export class CerealTable {
   }
 
   protected roundDownDecimal(value: number): number {
-    return Math.round(value);
+    return Math.floor(value);
   }
 
   private nextArrow(current: SortArrow): SortArrow {

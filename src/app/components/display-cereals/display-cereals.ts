@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, ErrorHandler, Input, OnInit, inject, signal } from '@angular/core';
 import { ICereal, ISearchInputs } from '../../models/cereal-types';
 import { CerealService } from '../../services/cereal-service';
 import {
@@ -18,6 +18,7 @@ export class DisplayCereals implements OnInit {
   @Input() cereals: ICereal[] = [];
 
   private readonly cerealService = inject(CerealService);
+  private readonly errorHandler = inject(ErrorHandler);
 
   protected readonly isLoggedIn = signal(false);
   protected readonly modalMode = signal<CerealDialogMode | null>(null);
@@ -55,20 +56,24 @@ export class DisplayCereals implements OnInit {
   protected onSubmit(formData: FormData) {
     const mode = this.modalMode();
     if (mode === 'add') {
-      this.cerealService.addCereal(formData as unknown as ICereal).subscribe({
+      this.cerealService.addCereal(formData).subscribe({
         next: () => this.closeModal(),
-        error: (err) => console.error('Failed to add cereal', err),
+        error: (err) =>
+          this.errorHandler.handleError(
+            new Error('Failed to add cereal', { cause: err }),
+          ),
       });
       return;
     }
     const editing = this.editingCereal();
     if (mode === 'edit' && editing) {
-      this.cerealService
-        .updateImage(editing.id, formData as unknown as ICereal)
-        .subscribe({
-          next: () => this.closeModal(),
-          error: (err) => console.error('Failed to update cereal', err),
-        });
+      this.cerealService.updateImage(editing.id, formData).subscribe({
+        next: () => this.closeModal(),
+        error: (err) =>
+          this.errorHandler.handleError(
+            new Error('Failed to update cereal', { cause: err }),
+          ),
+      });
     }
   }
 
@@ -88,6 +93,11 @@ export class DisplayCereals implements OnInit {
     if (!this.isLoggedIn()) {
       return;
     }
-    this.cerealService.deleteCereal(id).subscribe();
+    this.cerealService.deleteCereal(id).subscribe({
+      error: (err) =>
+        this.errorHandler.handleError(
+          new Error('Failed to delete cereal', { cause: err }),
+        ),
+    });
   }
 }

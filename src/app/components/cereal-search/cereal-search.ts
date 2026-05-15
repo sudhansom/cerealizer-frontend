@@ -21,12 +21,14 @@ export class CerealSearch {
 
   protected readonly items = signal<string[]>([]);
   protected readonly conditions = signal<string[]>([]);
-  protected readonly values = signal<(string | number)[]>([]);
+  protected readonly values = signal<(string | number | null)[]>([]);
 
   addCondition() {
     this.items.update((arr) => [...arr, 'Calories']);
     this.conditions.update((arr) => [...arr, 'lessThan']);
-    this.values.update((arr) => [...arr, 0]);
+    // Start the row blank instead of seeding `0`, which would otherwise be
+    // emitted as a real filter the moment the user clicks Go without typing.
+    this.values.update((arr) => [...arr, null]);
   }
 
   removeCondition(index: number) {
@@ -60,7 +62,13 @@ export class CerealSearch {
   onValueChange(index: number, value: string) {
     this.values.update((arr) => {
       const next = [...arr];
-      next[index] = this.isTextItem(index) ? value : Number(value);
+      if (this.isTextItem(index)) {
+        next[index] = value;
+      } else {
+        // `Number('')` is `0` which would silently apply a "value=0" filter;
+        // map blank numeric inputs to `null` so the service skips the row.
+        next[index] = value === '' ? null : Number(value);
+      }
       return next;
     });
   }
